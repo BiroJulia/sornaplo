@@ -4,6 +4,7 @@ import 'package:sornaplo/screens/popUpBeers.dart';
 
 class popUpEdit extends StatefulWidget {
   final void Function(dynamic) onSave;
+
   const popUpEdit({super.key, required this.onSave});
 
   @override
@@ -14,6 +15,7 @@ class _popUpEditState extends State<popUpEdit> {
   DateTime initialDate = DateTime.now();
   final dateForm = new DateFormat('dd-MM-yyyy');
   String selectedBeer = "";
+  String name = "";
 
   Future<void> _selectDate(BuildContext context) async {
     print(initialDate.toString());
@@ -59,31 +61,35 @@ class _popUpEditState extends State<popUpEdit> {
                 ),
               ),
               const Spacer(),
-              
-              // TextButton(
-              //   onPressed: () {
-              //     widget.onSave({
-              //       "name": "elso sor",
-              //       "date": initialDate,
-              //       "type": selectedBeer
-              //     });
-              //     Navigator.of(context).pop();
-              //   },
-              //   child: const Text(
-              //     "Mentes",
-              //     style: TextStyle(
-              //       color: Colors.black,
-              //       fontSize: 18,
-              //       fontWeight: FontWeight.w400,
-              //     ),
-              //   ),
-              // ),
+              TextButton(
+                onPressed: () {
+                  widget.onSave({
+                    "name": name,
+                    "date": initialDate,
+                    "type": selectedBeer
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "Mentes",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(
             height: 30,
           ),
-          const TextField(
+          TextField(
+            onChanged: (value) {
+              setState(() {
+                name = value;
+              });
+            },
             decoration: InputDecoration(
               hintText: ("A fozet neve"),
               border: UnderlineInputBorder(),

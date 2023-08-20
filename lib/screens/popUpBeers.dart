@@ -21,22 +21,22 @@ class PopUpBeers extends StatelessWidget {
             Spacer(),
           ],
         ),
-        // Expanded(
-        //   child: ListView.builder(
-        //     itemCount: beerlist.length,
-        //     itemBuilder: (BuildContext context, int index) {
-        //       return InkWell(
-        //         onTap: () {
-        //           onPressed(beerlist[index]);
-        //           Navigator.of(context).pop(); // close the popup menu
-        //         },
-        //         child: Center(
-        //           child: Text(beerlist[index]),
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // )
+        Expanded(
+          child: ListView.builder(
+            itemCount: beerlist.length,
+            itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () {
+                  onPressed(beerlist[index]);
+                  Navigator.of(context).pop(); // close the popup menu
+                },
+                child: Center(
+                  child: Text(beerlist[index]),
+                ),
+              );
+            },
+          ),
+        )
       ],
     ));
   }

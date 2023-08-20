@@ -15,54 +15,66 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // final FirebaseAuth auth = FirebaseAuth.instance;
-  // final List SavedBeerCards = [];
-  // void addBeer(beer) {
-  //   setState(() {
-  //     SavedBeerCards.add(beer);
-  //   });
-  // }
+  final List SavedBeerCards = [];
+
+  void addBeer(beer) {
+    setState(() {
+      SavedBeerCards.add(beer);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      ///////APP BAR
+        ///////APP BAR
 
-      appBar: AppBar(
-        title: const Text("Sornaplo"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              // showModalBottomSheet(
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(10.0),
-              //     ),
-              //     backgroundColor: Colors.white,
-              //     context: context,
-              //     builder: (context) {
-              //       return Container();
-              //       // popUpEdit(
-              //       //   onSave: addBeer,
-              //       // );
-              //     });
+        appBar: AppBar(
+          title: const Text("Sornaplo"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    backgroundColor: Colors.white,
+                    context: context,
+                    builder: (context) {
+                      return popUpEdit(
+                        onSave: addBeer,
+                      );
+                    });
+              },
+            ),
+          ],
+        ),
+        body: Container(
+          child: ListView.builder(
+            itemCount: SavedBeerCards.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Container(
+                child: Column(children: [
+                  Text(SavedBeerCards[index]["name"]),
+                  Text(SavedBeerCards[index]["date"].toString()),
+                  Text(SavedBeerCards[index]["type"]),
+                ]),
+              );
             },
           ),
-        ],
-      ),
-      body:
-          // Container()
-          Center(
-        child: ElevatedButton(
-          child: Text("Logout"),
-          onPressed: () {
-            FirebaseAuth.instance.signOut().then((value) {
-              print("Signed Out");
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SignInScreen()));
-            });
-          },
-        ),
-      ),
-    );
+        )
+        //     Center(
+        //   child: ElevatedButton(
+        //     child: Text("Logout"),
+        //     onPressed: () {
+        //       FirebaseAuth.instance.signOut().then((value) {
+        //         print("Signed Out");
+        //         Navigator.push(context,
+        //             MaterialPageRoute(builder: (context) => SignInScreen()));
+        //       });
+        //     },
+        //   ),
+        // ),
+        );
   }
 }
