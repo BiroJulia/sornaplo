@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "382209190088",
+    "project_id": "sornaplo-7c388",
+    "storage_bucket": "sornaplo-7c388.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:382209190088:android:bc68c6e8ff8d403fd3ddfd",
+        "android_client_info": {
+          "package_name": "com.example.sornaplo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "382209190088-rp2fa9vm4bngf47dvpuvr0b4g9ll70qv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlB6aOuDuTqalSMmftCj0nOURllyuJUmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "382209190088-rp2fa9vm4bngf47dvpuvr0b4g9ll70qv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
