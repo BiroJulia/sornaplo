@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sornaplo/screens/popUpBeers.dart';
 
 class popUpEdit extends StatefulWidget {
-  final void Function(dynamic) onSave;
+  final void Function(Map<String, dynamic>) onSave;
 
   const popUpEdit({super.key, required this.onSave});
 
@@ -16,6 +17,32 @@ class _popUpEditState extends State<popUpEdit> {
   final dateForm = new DateFormat('dd-MM-yyyy');
   String selectedBeer = "";
   String name = "";
+  List<String> beerListFromFirestore = []; // List to store beer types
+
+  String _getFormattedDate(DateTime date) {
+    String month = _getMonth(date.month);
+    String day = date.day.toString();
+    return '$month $day';
+  }
+
+  String _getMonth(int month) {
+    List<String> months = [
+      "",
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+    return months[month];
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     print(initialDate.toString());
@@ -29,6 +56,22 @@ class _popUpEditState extends State<popUpEdit> {
         initialDate = picked;
       });
     }
+  }
+
+  @override
+  void initState() {
+    fetchBeerTypes(); 
+    super.initState();
+  }
+
+  // Fetch beer types from Firestore
+  Future<void> fetchBeerTypes() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('beertype').get();
+
+    querySnapshot.docs.forEach((doc) {
+      beerListFromFirestore.add(doc.id);
+    });
   }
 
   void onBeerSelect(String beerType) {
@@ -57,6 +100,7 @@ class _popUpEditState extends State<popUpEdit> {
                     color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
+                    height: 2,
                   ),
                 ),
               ),
@@ -66,7 +110,8 @@ class _popUpEditState extends State<popUpEdit> {
                   widget.onSave({
                     "name": name,
                     "date": initialDate,
-                    "type": selectedBeer
+                    "type": selectedBeer,
+                    "rating": 0,
                   });
                   Navigator.of(context).pop();
                 },
@@ -76,6 +121,7 @@ class _popUpEditState extends State<popUpEdit> {
                     color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
+                    height: 2,
                   ),
                 ),
               ),
@@ -91,22 +137,31 @@ class _popUpEditState extends State<popUpEdit> {
               });
             },
             decoration: InputDecoration(
-              hintText: ("A fozet neve"),
+              hintText: ("A főzet neve"),
+              hintStyle: TextStyle(
+                fontSize: 26,
+                color: Colors.black87,
+                height: 0.67,
+                fontWeight: FontWeight.w500,
+              ),
               border: UnderlineInputBorder(),
-              contentPadding: EdgeInsets.only(left: 30),
+              contentPadding: EdgeInsets.only(left: 50),
             ),
+          ),
+          const SizedBox(
+            height: 30,
           ),
 
           ///DATUM select
           ///
           Padding(
-            padding: EdgeInsets.only(left: 30),
+            padding: EdgeInsets.only(left: 50),
             child: Row(
               children: [
                 const Icon(
                   Icons.calendar_month,
                   color: Color.fromARGB(255, 140, 140, 140),
-                  size: 28,
+                  size: 30,
                 ),
                 TextButton(
                     onPressed: () => {_selectDate(context)},
@@ -114,7 +169,7 @@ class _popUpEditState extends State<popUpEdit> {
                       dateForm.format(initialDate),
                       style: const TextStyle(
                           color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 17),
+                          fontSize: 19),
                     ))
               ],
             ),
@@ -123,13 +178,19 @@ class _popUpEditState extends State<popUpEdit> {
 
           //////// Beer Type
           Padding(
-            padding: EdgeInsets.only(left: 30),
+            padding: EdgeInsets.only(left: 50),
             child: Row(
               children: [
-                const Icon(
-                  Icons.local_drink_rounded,
+                // const Icon(
+                //   Icons.local_drink_rounded,
+                //   color: Color.fromARGB(255, 140, 140, 140),
+                //   size: 28,
+                // ),
+                Image.asset(
+                  "assets/images/smallbeericon.png",
+                  width: 29,
+                  height: 29,
                   color: Color.fromARGB(255, 140, 140, 140),
-                  size: 28,
                 ),
                 TextButton(
                     onPressed: () => {
@@ -141,24 +202,28 @@ class _popUpEditState extends State<popUpEdit> {
                               context: context,
                               builder: (context) {
                                 return PopUpBeers(
-                                    beerlist: ["Ale", "pale ale", "Brown ale"],
+                                    beerlist: beerListFromFirestore,
+                                    // beerlist: ["Ale", "pale ale", "Brown ale"],
                                     onPressed: onBeerSelect);
                               })
                         },
                     child: Text(
                       selectedBeer.length == 0
-                          ? "Valassz egy sorfajtat"
+                          ? "válassz egy sörfajtát"
                           : selectedBeer,
 
                       /// inline if
                       style: const TextStyle(
-                          color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 17),
+                        color: Color.fromARGB(182, 140, 140, 140),
+                        fontStyle: FontStyle.italic,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ))
               ],
             ),
           ),
-          const SizedBox(height: 100),
+          const SizedBox(height: 80),
         ],
       ),
     );
