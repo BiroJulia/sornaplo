@@ -1,29 +1,41 @@
 import 'package:flutter/material.dart';
 
 class LogScreen extends StatefulWidget {
-  final String beerName;
+  final Map<String, dynamic> beer;
 
-  const LogScreen({Key? key, required this.beerName}) : super(key: key);
+  const LogScreen({Key? key, required this.beer}) : super(key: key);
 
   @override
   State<LogScreen> createState() => _LogScreenState();
 }
 
 class _LogScreenState extends State<LogScreen> {
+  final List<String> actionList = [
+    'Fozes',
+    'Komlozas',
+    'Palackozas',
+    'Bejegyzes'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.beerName), // Display the beer name in the app bar
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _showPopup(); // Show the popup when the plus icon is pressed
-            },
-          ),
-        ],
+        title: Text(widget.beer['name']),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showPopup();
+        },
+        child: const Icon(Icons.add),
+      ),
+      body: (widget.beer['logs'] != null
+          ? const Center(
+              child: Text("Yay"),
+            )
+          : const Center(
+              child: Text("asd"),
+            )),
     );
   }
 
@@ -37,12 +49,12 @@ class _LogScreenState extends State<LogScreen> {
       builder: (context) {
         // Build and return your popup content here
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Add a Log Entry', // Customize the title of your popup
                 style: TextStyle(
                   fontSize: 18.0,
@@ -51,14 +63,22 @@ class _LogScreenState extends State<LogScreen> {
               ),
               // Add form fields or other content for your popup
               // For example, you can add TextFields, buttons, etc.
-              SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle the action when the button in the popup is pressed
-                  Navigator.of(context).pop(); // Close the popup
-                },
-                child: Text('Save'),
-              ),
+              const SizedBox(height: 16.0),
+              ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: actionList.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: InkWell(
+                        child: Text(
+                          actionList[index],
+                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    );
+                  })
             ],
           ),
         );

@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:sornaplo/screens/home_screen.dart';
+
 // import 'package:sornaplo/screens/phone_signin.dart';
 import 'package:sornaplo/screens/reset_password.dart';
 import 'package:sornaplo/screens/signup_screen.dart';
@@ -58,6 +62,9 @@ class _SignInScreenState extends State<SignInScreen> {
                           email: _emailTextController.text,
                           password: _passwordTextController.text)
                       .then((value) {
+                        if (value.user == null) {
+                          return;
+                        }
                     Navigator.push(
                         context,
                         MaterialPageRoute(

@@ -44,8 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       savedBrewCards.add(brew);
-    });
-    log("userId: $userId"); //debug purposes only!
+    }); //debug purposes only!
     _firestore.collection('brews').add({
       'userId': userId,
       'name': brew['name'],
@@ -62,11 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchBrews();
   }
 
-  Future<void> _fetchBrews() async {
-    // _brewStream = _firestore.collection('brews').snapshots();
-    // // return _brewStream;
-    setState(() {});
-
+  Future<dynamic> _fetchBrews() async {
     // Get the current user's ID
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -74,13 +69,15 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection('brews')
         .where('userId', isEqualTo: userId)
         .snapshots();
+
+    return _brewStream;
   }
 
-  void _navigateToLogScreen(String beerName) {
+  void _navigateToLogScreen(Map<String, dynamic> beerData) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LogScreen(beerName: beerName),
+        builder: (context) => LogScreen(beer: beerData),
       ),
     );
   }
@@ -115,6 +112,34 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
+          } else if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/images/smallbeericon.png",
+                    width: 100,
+                    height: 100,
+                    color: Colors.black26,
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 100, vertical: 10),
+                    child: Text(
+                      "Üdvözlet a Sörnaplóban! \n\n Hogy ez az oldal ne legyen ilyen üres, főzz egy új sört és vezess itt naplót.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black38,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else {
             return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
@@ -124,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return InkWell(
                     onTap: () {
                       _navigateToLogScreen(
-                          brewData["name"]); // Pass the beer name to LogScreen
+                          brewData); // Pass the beer name to LogScreen
                     },
                     child: Card(
                       elevation: 5,
@@ -237,33 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // }
 
           // return savedBrewCards.isEmpty
-          //     ? Center(
-          //         child: Column(
-          //           mainAxisAlignment: MainAxisAlignment.center,
-          //           children: [
-          //             Image.asset(
-          //               "assets/images/smallbeericon.png",
-          //               width: 100,
-          //               height: 100,
-          //               color: Colors.black26,
-          //             ),
-          //             SizedBox(height: 10),
-          //             Container(
-          //               padding:
-          //                   EdgeInsets.symmetric(horizontal: 100, vertical: 10),
-          //               child: Text(
-          //                 "Üdvözlet a Sörnaplóban! \n\n Hogy ez az oldal ne legyen ilyen üres, főzz egy új sört és vezess itt naplót.",
-          //                 textAlign: TextAlign.center,
-          //                 style: TextStyle(
-          //                   fontSize: 18,
-          //                   color: Colors.black38,
-          //                   fontWeight: FontWeight.w400,
-          //                 ),
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       )
+          //     ?
           //     : ListView(
           //         children: brewCards,
           //       );
@@ -273,16 +272,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-
-      //     Center(
-      //   child: ElevatedButton(
-      //     child: Text("Logout"),
-      //     onPressed: () {
-      //       FirebaseAuth.instance.signOut().then((value) {
-      //         print("Signed Out");
-      //         Navigator.push(context,
-      //             MaterialPageRoute(builder: (context) => SignInScreen()));
-      //       });
-      //     },
-      //   ),
-      // ),
+//     Center(
+//   child: ElevatedButton(
+//     child: Text("Logout"),
+//     onPressed: () {
+//       FirebaseAuth.instance.signOut().then((value) {
+//         print("Signed Out");
+//         Navigator.push(context,
+//             MaterialPageRoute(builder: (context) => SignInScreen()));
+//       });
+//     },
+//   ),
+// ),
