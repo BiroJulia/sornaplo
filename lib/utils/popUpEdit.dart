@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sornaplo/screens/popUpBeers.dart';
+import 'package:sornaplo/utils/popUpBeers.dart';
 
 class popUpEdit extends StatefulWidget {
   final void Function(Map<String, dynamic>) onSave;
