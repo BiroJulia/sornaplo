@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/popUpBeers.dart';
 
-class popUpEdit extends StatefulWidget {
+class PopUpEdit extends StatefulWidget {
   final void Function(Map<String, dynamic>) onSave;
 
-  const popUpEdit({super.key, required this.onSave});
+  const PopUpEdit({super.key, required this.onSave});
 
   @override
-  State<popUpEdit> createState() => _popUpEditState();
+  State<PopUpEdit> createState() => _PopUpEditState();
 }
 
-class _popUpEditState extends State<popUpEdit> {
+class _PopUpEditState extends State<PopUpEdit> {
   DateTime initialDate = DateTime.now();
   final dateForm = new DateFormat('dd-MM-yyyy');
   String selectedBeer = "";
@@ -82,149 +82,149 @@ class _popUpEditState extends State<popUpEdit> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      /////Felugro ablak
-      ///
-
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "Mégsem",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    height: 2,
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    "Mégsem",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      height: 2,
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {
-                  widget.onSave({
-                    "name": name,
-                    "date": initialDate,
-                    "type": selectedBeer,
-                    "rating": 0,
-                  });
-                  Navigator.of(context).pop();
-                },
-                child: const Text(
-                  "Mentes",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    height: 2,
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    widget.onSave({
+                      "name": name,
+                      "date": initialDate,
+                      "type": selectedBeer,
+                      "rating": 0,
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    "Mentes",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      height: 2,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          TextField(
-            onChanged: (value) {
-              setState(() {
-                name = value;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: ("A főzet neve"),
-              hintStyle: TextStyle(
-                fontSize: 26,
-                color: Colors.black87,
-                height: 0.67,
-                fontWeight: FontWeight.w500,
-              ),
-              border: UnderlineInputBorder(),
-              contentPadding: EdgeInsets.only(left: 50),
-            ),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-
-          ///DATUM select
-          ///
-          Padding(
-            padding: EdgeInsets.only(left: 50),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.calendar_month,
-                  color: Color.fromARGB(255, 140, 140, 140),
-                  size: 30,
-                ),
-                TextButton(
-                    onPressed: () => {_selectDate(context)},
-                    child: Text(
-                      dateForm.format(initialDate),
-                      style: const TextStyle(
-                          color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 19),
-                    ))
               ],
             ),
-          ),
-          // const SizedBox(height: 10),
-
-          //////// Beer Type
-          Padding(
-            padding: EdgeInsets.only(left: 50),
-            child: Row(
-              children: [
-                // const Icon(
-                //   Icons.local_drink_rounded,
-                //   color: Color.fromARGB(255, 140, 140, 140),
-                //   size: 28,
-                // ),
-                Image.asset(
-                  "assets/images/smallbeericon.png",
-                  width: 29,
-                  height: 29,
-                  color: Color.fromARGB(255, 140, 140, 140),
-                ),
-                TextButton(
-                    onPressed: () => {
-                          showModalBottomSheet(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              backgroundColor: Colors.white,
-                              context: context,
-                              builder: (context) {
-                                return PopUpBeers(
-                                    beerlist: beerListFromFirestore,
-                                    // beerlist: ["Ale", "pale ale", "Brown ale"],
-                                    onPressed: onBeerSelect);
-                              })
-                        },
-                    child: Text(
-                      selectedBeer.length == 0
-                          ? "válassz egy sörfajtát"
-                          : selectedBeer,
-
-                      /// inline if
-                      style: const TextStyle(
-                        color: Color.fromARGB(182, 140, 140, 140),
-                        fontStyle: FontStyle.italic,
-                        fontSize: 19,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ))
-              ],
+            const SizedBox(
+              height: 30,
             ),
-          ),
-          const SizedBox(height: 80),
-        ],
+            TextField(
+              onChanged: (value) {
+                setState(() {
+                  name = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: ("A főzet neve"),
+                hintStyle: TextStyle(
+                  fontSize: 26,
+                  color: Colors.black87,
+                  height: 0.67,
+                  fontWeight: FontWeight.w500,
+                ),
+                border: UnderlineInputBorder(),
+                contentPadding: EdgeInsets.only(left: 50),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+
+            ///DATUM select
+            ///
+            Padding(
+              padding: EdgeInsets.only(left: 50),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_month,
+                    color: Color.fromARGB(255, 140, 140, 140),
+                    size: 30,
+                  ),
+                  TextButton(
+                      onPressed: () => {_selectDate(context)},
+                      child: Text(
+                        dateForm.format(initialDate),
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 140, 140, 140),
+                            fontSize: 19),
+                      ))
+                ],
+              ),
+            ),
+            // const SizedBox(height: 10),
+
+            //////// Beer Type
+            Padding(
+              padding: EdgeInsets.only(left: 50),
+              child: Row(
+                children: [
+                  // const Icon(
+                  //   Icons.local_drink_rounded,
+                  //   color: Color.fromARGB(255, 140, 140, 140),
+                  //   size: 28,
+                  // ),
+                  Image.asset(
+                    "assets/images/smallbeericon.png",
+                    width: 29,
+                    height: 29,
+                    color: Color.fromARGB(255, 140, 140, 140),
+                  ),
+                  TextButton(
+                      onPressed: () => {
+                        showModalBottomSheet(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            backgroundColor: Colors.white,
+                            context: context,
+                            builder: (context) {
+                              return PopUpBeers(
+                                  beerlist: beerListFromFirestore,
+                                  // beerlist: ["Ale", "pale ale", "Brown ale"],
+                                  onPressed: onBeerSelect);
+                            })
+                      },
+                      child: Text(
+                        selectedBeer.length == 0
+                            ? "válassz egy sörfajtát"
+                            : selectedBeer,
+
+                        /// inline if
+                        style: const TextStyle(
+                          color: Color.fromARGB(182, 140, 140, 140),
+                          fontStyle: FontStyle.italic,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ))
+                ],
+              ),
+            ),
+            const SizedBox(height: 80),
+          ],
+        ),
       ),
     );
   }

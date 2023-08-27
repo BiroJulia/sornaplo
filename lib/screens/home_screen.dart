@@ -74,11 +74,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return _brewStream;
   }
 
-  void _navigateToLogScreen(Map<String, dynamic> beerData) {
+  void _navigateToLogScreen(Map<String, dynamic> beerData, String beerId) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LogScreen(beer: beerData),
+        builder: (context) => LogScreen(beer: beerData, beerId: beerId),
       ),
     );
   }
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.white,
                 context: context,
                 builder: (context) {
-                  return popUpEdit(
+                  return PopUpEdit(
                     onSave: addBrew,
                   );
                 },
@@ -151,8 +151,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         as Map<String, dynamic>;
                     return InkWell(
                       onTap: () {
+                        var id = snapshot.data!.docs[index].id;
                         _navigateToLogScreen(
-                            brewData); // Pass the beer name to LogScreen
+                            brewData, id); // Pass the beer name to LogScreen
                       },
                       child: Card(
                         elevation: 5,
