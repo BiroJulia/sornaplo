@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _brewStream = Stream<QuerySnapshot>.empty();
+    _brewStream = const Stream<QuerySnapshot>.empty();
     _fetchBrews();
   }
 
@@ -91,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Sornaplo"),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
             onPressed: () {
               showModalBottomSheet(
                 shape: RoundedRectangleBorder(
@@ -114,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
           stream: _brewStream,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             } else if (snapshot.data!.docs.isEmpty) {
               return Center(
                 child: Column(
@@ -126,11 +123,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 100,
                       color: Colors.black26,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 100, vertical: 10),
-                      child: Text(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 10),
+                      child: const Text(
                         "Üdvözlet a Sörnaplóban! \n\n Hogy ez az oldal ne legyen ilyen üres, főzz egy új sört és vezess itt naplót.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -157,19 +154,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Card(
                         elevation: 5,
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(20, 10, 20, 0),
                           title: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 snapshot.data!.docs[index]["name"],
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -179,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           subtitle: Row(
                             children: [
                               Container(
-                                padding: EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: Colors.white30,
                                   borderRadius: BorderRadius.circular(8),
@@ -192,33 +190,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .data!.docs[index]["date"]
                                           .toDate()
                                           .month),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w400,
-                                        color: const Color.fromARGB(
-                                            255, 101, 101, 101),
+                                        color:
+                                            Color.fromARGB(255, 101, 101, 101),
                                       ),
                                     ),
                                     Text(
                                       "${snapshot.data!.docs[index]["date"].toDate().day}",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 35,
                                         fontWeight: FontWeight.bold,
-                                        color: const Color.fromARGB(
-                                            255, 101, 101, 101),
+                                        color:
+                                            Color.fromARGB(255, 101, 101, 101),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     snapshot.data!.docs[index]["type"],
                                     textAlign: TextAlign.end,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -232,9 +230,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     allowHalfRating: true,
                                     itemCount: 5,
                                     itemSize: 24,
-                                    itemPadding:
-                                        EdgeInsets.symmetric(vertical: 2.0),
-                                    itemBuilder: (context, _) => Icon(
+                                    itemPadding: const EdgeInsets.symmetric(
+                                        vertical: 2.0),
+                                    itemBuilder: (context, _) => const Icon(
                                       Icons.star,
                                       color: Colors.amber,
                                     ),
@@ -245,11 +243,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .update({'rating': rating});
                                     },
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   snapshot.data!.docs[index]["rating"] > 2.5
-                                      ? Icon(Icons.thumb_up,
+                                      ? const Icon(Icons.thumb_up,
                                           color: Colors.green)
-                                      : Icon(Icons.thumb_down,
+                                      : const Icon(Icons.thumb_down,
                                           color: Colors.red),
                                 ],
                               ),

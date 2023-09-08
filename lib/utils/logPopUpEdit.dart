@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,7 +16,7 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
   String descriptionText = "";
   bool isError = false;
   DateTime initialDate = DateTime.now();
-  final dateForm = new DateFormat('dd-MM-yyyy');
+  final dateForm = DateFormat('dd-MM-yyyy');
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -107,7 +105,7 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                   children: [
                     Icon(
                       widget.type.value,
-                      color: Color.fromARGB(255, 140, 140, 140),
+                      color: const Color.fromARGB(255, 140, 140, 140),
                       size: 30,
                     ),
                     Text(

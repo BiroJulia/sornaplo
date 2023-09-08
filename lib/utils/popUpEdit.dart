@@ -14,7 +14,7 @@ class PopUpEdit extends StatefulWidget {
 
 class _PopUpEditState extends State<PopUpEdit> {
   DateTime initialDate = DateTime.now();
-  final dateForm = new DateFormat('dd-MM-yyyy');
+  final dateForm = DateFormat('dd-MM-yyyy');
   String selectedBeer = "";
   String name = "";
   List<String> beerListFromFirestore = []; // List to store beer types
@@ -60,7 +60,7 @@ class _PopUpEditState extends State<PopUpEdit> {
 
   @override
   void initState() {
-    fetchBeerTypes(); 
+    fetchBeerTypes();
     super.initState();
   }
 
@@ -69,9 +69,9 @@ class _PopUpEditState extends State<PopUpEdit> {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('beertype').get();
 
-    querySnapshot.docs.forEach((doc) {
+    for (var doc in querySnapshot.docs) {
       beerListFromFirestore.add(doc.id);
-    });
+    }
   }
 
   void onBeerSelect(String beerType) {
@@ -135,7 +135,7 @@ class _PopUpEditState extends State<PopUpEdit> {
                   name = value;
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: ("A főzet neve"),
                 hintStyle: TextStyle(
                   fontSize: 26,
@@ -154,7 +154,7 @@ class _PopUpEditState extends State<PopUpEdit> {
             ///DATUM select
             ///
             Padding(
-              padding: EdgeInsets.only(left: 50),
+              padding: const EdgeInsets.only(left: 50),
               child: Row(
                 children: [
                   const Icon(
@@ -177,7 +177,7 @@ class _PopUpEditState extends State<PopUpEdit> {
 
             //////// Beer Type
             Padding(
-              padding: EdgeInsets.only(left: 50),
+              padding: const EdgeInsets.only(left: 50),
               child: Row(
                 children: [
                   // const Icon(
@@ -189,25 +189,25 @@ class _PopUpEditState extends State<PopUpEdit> {
                     "assets/images/smallbeericon.png",
                     width: 29,
                     height: 29,
-                    color: Color.fromARGB(255, 140, 140, 140),
+                    color: const Color.fromARGB(255, 140, 140, 140),
                   ),
                   TextButton(
                       onPressed: () => {
-                        showModalBottomSheet(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            backgroundColor: Colors.white,
-                            context: context,
-                            builder: (context) {
-                              return PopUpBeers(
-                                  beerlist: beerListFromFirestore,
-                                  // beerlist: ["Ale", "pale ale", "Brown ale"],
-                                  onPressed: onBeerSelect);
-                            })
-                      },
+                            showModalBottomSheet(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                backgroundColor: Colors.white,
+                                context: context,
+                                builder: (context) {
+                                  return PopUpBeers(
+                                      beerlist: beerListFromFirestore,
+                                      // beerlist: ["Ale", "pale ale", "Brown ale"],
+                                      onPressed: onBeerSelect);
+                                })
+                          },
                       child: Text(
-                        selectedBeer.length == 0
+                        selectedBeer.isEmpty
                             ? "válassz egy sörfajtát"
                             : selectedBeer,
 

@@ -1,8 +1,6 @@
-import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:sornaplo/screens/home_screen.dart';
 
 // import 'package:sornaplo/screens/phone_signin.dart';
@@ -20,8 +18,8 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  TextEditingController _passwordTextController = TextEditingController();
-  TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +103,7 @@ class _SignInScreenState extends State<SignInScreen> {
         GestureDetector(
           onTap: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SignUpScreen()));
+                MaterialPageRoute(builder: (context) => const SignUpScreen()));
           },
           child: const Text(
             " Sign Up",
@@ -129,7 +127,7 @@ Widget forgetPassword(BuildContext context) {
         textAlign: TextAlign.right,
       ),
       onPressed: () => Navigator.push(
-          context, MaterialPageRoute(builder: (context) => ResetPassword())),
+          context, MaterialPageRoute(builder: (context) => const ResetPassword())),
     ),
   );
 }

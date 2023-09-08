@@ -1,7 +1,5 @@
-import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
@@ -19,7 +17,7 @@ class LogScreen extends StatefulWidget {
 }
 
 class _LogScreenState extends State<LogScreen> {
-  final dateForm = new DateFormat('dd-MM-yyyy');
+  final dateForm = DateFormat('dd-MM-yyyy');
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Map<String, dynamic> actionList = {
     'Főzés': Icons.soup_kitchen,

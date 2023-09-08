@@ -12,7 +12,7 @@ class PopUpBeers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             Row(
@@ -22,10 +22,10 @@ class PopUpBeers extends StatelessWidget {
                       Navigator.of(context).pop();
                     },
                     child: const Text("Megsem")),
-                Spacer(),
+                const Spacer(),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Expanded(
               child: ListView.builder(
                 itemCount: beerlist.length,
@@ -40,7 +40,7 @@ class PopUpBeers extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
                           beerlist[index],
-                          style: TextStyle(fontSize: 20.0),
+                          style: const TextStyle(fontSize: 20.0),
                         ),
                       ),
                     ),
