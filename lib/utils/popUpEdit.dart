@@ -6,7 +6,7 @@ import 'package:sornaplo/utils/popUpBeers.dart';
 class PopUpEdit extends StatefulWidget {
   final void Function(Map<String, dynamic>) onSave;
 
-  const PopUpEdit({super.key, required this.onSave});
+  const PopUpEdit({Key? key, required this.onSave}) : super(key: key);
 
   @override
   State<PopUpEdit> createState() => _PopUpEditState();

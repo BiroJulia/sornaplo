@@ -61,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<dynamic> _fetchBrews() async {
-    // Get the current user's ID
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     _brewStream = _firestore
@@ -90,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Bezárja a dialógust
+                Navigator.of(context).pop();
               },
               child: Text("Mégsem"),
             ),
@@ -115,16 +114,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: hexStringToColor("EC9D00"),
-        title: Text("Sornaplo"),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.logout),
           onPressed: () {
-            _showLogoutConfirmationDialog(); // Megerősítés kérése a kilépés előtt
+            _showLogoutConfirmationDialog();
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.more_vert),
             onPressed: () {
               showModalBottomSheet(
                 shape: RoundedRectangleBorder(
@@ -133,8 +131,44 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.white,
                 context: context,
                 builder: (context) {
-                  return PopUpEdit(
-                    onSave: addBrew,
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: Icon(Icons.add),
+                        title: Text('Új főzet'),
+                        onTap: () {
+                          Navigator.pop(context);
+                          showModalBottomSheet(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            backgroundColor: Colors.white,
+                            context: context,
+                            builder: (context) {
+                              return PopUpEdit(
+                                onSave: addBrew,
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.view_list),
+                        title: Text('Egyszerű nézet'),
+                        onTap: () {
+                          // Implementálni az egyszerű nézet logikáját
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        leading: Icon(Icons.cancel),
+                        title: Text('Mégsem'),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   );
                 },
               );
@@ -142,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+
 
       body: Container(
         child: StreamBuilder<QuerySnapshot>(
