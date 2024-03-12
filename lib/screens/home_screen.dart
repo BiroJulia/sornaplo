@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:sornaplo/screens/log.dart';
+import 'package:sornaplo/screens/signin_screen.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 import 'package:sornaplo/utils/popUpEdit.dart';
 
@@ -80,15 +81,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showLogoutConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Biztos ki szeretne lépni?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Bezárja a dialógust
+              },
+              child: Text("Mégsem"),
+            ),
+            TextButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut().then((value) {
+                  print("Signed Out");
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+                });
+              },
+              child: const Text("Igen, kijelentkezem"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: hexStringToColor("EC9D00"),
-        title: const Text("Sornaplo"),
+        title: Text("Sornaplo"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            _showLogoutConfirmationDialog(); // Megerősítés kérése a kilépés előtt
+          },
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
+            icon: Icon(Icons.add),
             onPressed: () {
               showModalBottomSheet(
                 shape: RoundedRectangleBorder(
@@ -106,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+
       body: Container(
         child: StreamBuilder<QuerySnapshot>(
           stream: _brewStream,
@@ -213,6 +250,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white30,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Image.asset(
+                                          'assets/images/smallbeericon.png',
+                                          width: 26,
+                                          height: 26,
+                                        ),
+                                      ),
                                   Text(
                                     snapshot.data!.docs[index]["type"],
                                     textAlign: TextAlign.end,
@@ -221,6 +272,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  ],
+                                  ),
+
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white30,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Image.asset(
+                                          'assets/images/pageIcon.png',
+                                          width: 26,
+                                          height: 26,
+                                        ),
+                                      ),
                                   RatingBar.builder(
                                     initialRating: snapshot
                                         .data!.docs[index]["rating"]
@@ -243,12 +311,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                           .update({'rating': rating});
                                     },
                                   ),
-                                  const SizedBox(width: 8),
-                                  snapshot.data!.docs[index]["rating"] > 2.5
-                                      ? const Icon(Icons.thumb_up,
-                                          color: Colors.green)
-                                      : const Icon(Icons.thumb_down,
-                                          color: Colors.red),
+                                  ],
+                                  ),
+                                  // const SizedBox(width: 8),
+                                  // snapshot.data!.docs[index]["rating"] > 2.5
+                                  //     ? const Icon(Icons.thumb_up,
+                                  //         color: Colors.green)
+                                  //     : const Icon(Icons.thumb_down,
+                                  //         color: Colors.red),
                                 ],
                               ),
                             ],
