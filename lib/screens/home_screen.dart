@@ -7,6 +7,9 @@ import 'package:sornaplo/screens/signin_screen.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 import 'package:sornaplo/utils/popUpEdit.dart';
 
+import '../utils/homeFunctions.dart';
+import '../utils/firestoreFunctions.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -18,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<QuerySnapshot> _brewStream;
   final List<Map<String, dynamic>> savedBrewCards = [];
+  List<int> availableYears = [];
 
   String _getMonth(int month) {
     List<String> months = [
@@ -57,57 +61,70 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _brewStream = const Stream<QuerySnapshot>.empty();
-    _fetchBrews();
+    fetchBrews();
   }
 
-  Future<dynamic> _fetchBrews() async {
-    String userId = FirebaseAuth.instance.currentUser!.uid;
+  // Future<dynamic> _fetchBrews() async {
+  //   String userId = FirebaseAuth.instance.currentUser!.uid;
+  //
+  //   _brewStream = _firestore
+  //       .collection('brews')
+  //       .where('userId', isEqualTo: userId)
+  //       .snapshots();
+  //
+  //   return _brewStream;
+  // }
 
-    _brewStream = _firestore
-        .collection('brews')
-        .where('userId', isEqualTo: userId)
-        .snapshots();
+  // Fetch available years from Firestore
+  Future<void> _fetchAvailableYears() async {
+    QuerySnapshot querySnapshot =
+    await _firestore.collection('brews').get();
 
-    return _brewStream;
+    List<int> years = [];
+
+    for (var doc in querySnapshot.docs) {
+      DateTime brewDate = (doc.data() as Map)['date'].toDate();
+      int year = brewDate.year;
+      if (!years.contains(year)) {
+        years.add(year);
+      }
+    }
+
+    setState(() {
+      availableYears = years;
+    });
   }
 
-  void _navigateToLogScreen(Map<String, dynamic> beerData, String beerId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LogScreen(beer: beerData, beerId: beerId),
-      ),
-    );
-  }
 
-  void _showLogoutConfirmationDialog() {
-    showDialog(
+
+
+
+  Future<void> showYearSelectionDialog() async {  /// nem müködik
+    int? result = await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Biztos ki szeretne lépni?"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Mégsem"),
+          title: Text('Év kiválasztása'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              availableYears.length,
+                  (index) => ListTile(
+                title: Text(availableYears[index].toString()),
+                onTap: () {
+                  Navigator.of(context).pop(availableYears[index]);
+                },
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut().then((value) {
-                  print("Signed Out");
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen()));
-                });
-              },
-              child: const Text("Igen, kijelentkezem"),
-            ),
-          ],
+          ),
         );
       },
     );
-  }
 
+    if (result != null) {
+      // TODO: Filter cards based on selected year
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +134,23 @@ class _HomeScreenState extends State<HomeScreen> {
         leading: IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {
-            _showLogoutConfirmationDialog();
+            showLogoutConfirmationDialog(context);
           },
+        ),
+        /// CALENDAR ICON ////
+        title: InkWell(
+          onTap: showYearSelectionDialog,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            padding: EdgeInsets.all(12),
+            child: Icon(
+              Icons.calendar_today,
+              color: Colors.black,
+            ),
+          ),
         ),
         actions: [
           IconButton(
@@ -221,8 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     return InkWell(
                       onTap: () {
                         var id = snapshot.data!.docs[index].id;
-                        _navigateToLogScreen(
-                            brewData, id); // Pass the beer name to LogScreen
+                        navigateToLogScreen(
+                            brewData, id,context); // Pass the beer name to LogScreen
                       },
                       child: Card(
                         elevation: 5,
