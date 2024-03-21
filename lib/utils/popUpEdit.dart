@@ -92,7 +92,9 @@ class _PopUpEditState extends State<PopUpEdit> {
             Row(
               children: [
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                   child: const Text(
                     "Mégsem",
                     style: TextStyle(
@@ -106,16 +108,24 @@ class _PopUpEditState extends State<PopUpEdit> {
                 const Spacer(),
                 TextButton(
                   onPressed: () {
-                    widget.onSave({
-                      "name": name,
-                      "date": initialDate,
-                      "type": selectedBeer,
-                      "rating": 0,
-                    });
-                    Navigator.of(context).pop();
+                    if (name.isNotEmpty && selectedBeer.isNotEmpty) {
+                      widget.onSave({
+                        "name": name,
+                        "date": initialDate,
+                        "type": selectedBeer,
+                        "rating": 0,
+                      });
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Töltsd ki az összes mezőt!'),
+                        ),
+                      );
+                    }
                   },
                   child: const Text(
-                    "Mentes",
+                    "Mentés",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -124,6 +134,7 @@ class _PopUpEditState extends State<PopUpEdit> {
                     ),
                   ),
                 ),
+
               ],
             ),
             const SizedBox(
