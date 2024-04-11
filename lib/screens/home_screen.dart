@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<QuerySnapshot> _brewStream;
   final List<Map<String, dynamic>> savedBrewCards = [];
+  List<int> availableYears = [2022, 2023, 2024];
+  late int selectedYear = 0;
 
   String _getMonth(int month) {
     List<String> months = [
@@ -57,15 +61,21 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _brewStream = const Stream<QuerySnapshot>.empty();
+    selectedYear = availableYears[availableYears.length - 1];
     _fetchBrews();
   }
 
   Future<dynamic> _fetchBrews() async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
+    final DateTime lowerBound = DateTime(selectedYear);
+    final DateTime upperBound = DateTime(selectedYear + 1);
+
     _brewStream = _firestore
         .collection('brews')
         .where('userId', isEqualTo: userId)
+        .where('date',
+            isLessThan: upperBound, isGreaterThanOrEqualTo: lowerBound)
         .snapshots();
 
     return _brewStream;
@@ -97,7 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 FirebaseAuth.instance.signOut().then((value) {
                   print("Signed Out");
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignInScreen()));
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => SignInScreen()));
                 });
               },
               child: const Text("Igen, kijelentkezem"),
@@ -108,13 +119,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> showYearSelectionDialog() async {
+    /// nem müködik
+    int? result = await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Év kiválasztása'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(
+              availableYears.length,
+              (index) => ListTile(
+                title: Text(availableYears[index].toString()),
+                onTap: () {
+                  Navigator.of(context).pop(availableYears[index]);
+                  setState(() {
+                    selectedYear = availableYears[index];
+                    _fetchBrews();
+                  });
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
 
-
+    if (result != null) {
+      // TODO: Filter cards based on selected year
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: hexStringToColor("EC9D00"),
         leading: IconButton(
           icon: Icon(Icons.logout),
@@ -177,9 +218,21 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ],
+        title: InkWell(
+          onTap: showYearSelectionDialog,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            padding: EdgeInsets.all(12),
+            child: Icon(
+              Icons.calendar_today,
+              color: Colors.black,
+            ),
+          ),
+        ),
       ),
-
-
       body: Container(
         child: StreamBuilder<QuerySnapshot>(
           stream: _brewStream,
@@ -293,7 +346,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         padding: EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white30,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Image.asset(
                                           'assets/images/smallbeericon.png',
@@ -301,15 +355,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           height: 26,
                                         ),
                                       ),
-                                  Text(
-                                    snapshot.data!.docs[index]["type"],
-                                    textAlign: TextAlign.end,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  ],
+                                      Text(
+                                        snapshot.data!.docs[index]["type"],
+                                        textAlign: TextAlign.end,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
 
                                   Row(
@@ -318,7 +372,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white30,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Image.asset(
                                           'assets/images/pageIcon.png',
@@ -326,29 +381,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                           height: 26,
                                         ),
                                       ),
-                                  RatingBar.builder(
-                                    initialRating: snapshot
-                                        .data!.docs[index]["rating"]
-                                        .toDouble(),
-                                    minRating: 1,
-                                    direction: Axis.horizontal,
-                                    allowHalfRating: true,
-                                    itemCount: 5,
-                                    itemSize: 24,
-                                    itemPadding: const EdgeInsets.symmetric(
-                                        vertical: 2.0),
-                                    itemBuilder: (context, _) => const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                    ),
-                                    onRatingUpdate: (rating) {
-                                      _firestore
-                                          .collection('brews')
-                                          .doc(snapshot.data!.docs[index].id)
-                                          .update({'rating': rating});
-                                    },
-                                  ),
-                                  ],
+                                      RatingBar.builder(
+                                        initialRating: snapshot
+                                            .data!.docs[index]["rating"]
+                                            .toDouble(),
+                                        minRating: 1,
+                                        direction: Axis.horizontal,
+                                        allowHalfRating: true,
+                                        itemCount: 5,
+                                        itemSize: 24,
+                                        itemPadding: const EdgeInsets.symmetric(
+                                            vertical: 2.0),
+                                        itemBuilder: (context, _) => const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                        ),
+                                        onRatingUpdate: (rating) {
+                                          _firestore
+                                              .collection('brews')
+                                              .doc(
+                                                  snapshot.data!.docs[index].id)
+                                              .update({'rating': rating});
+                                        },
+                                      ),
+                                    ],
                                   ),
                                   // const SizedBox(width: 8),
                                   // snapshot.data!.docs[index]["rating"] > 2.5

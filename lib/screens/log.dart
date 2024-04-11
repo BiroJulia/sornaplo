@@ -23,6 +23,7 @@ class _LogScreenState extends State<LogScreen> {
     'Főzés': Icons.soup_kitchen,
     'Hideg komlózás': Icons.grass,
     'Palackozás': Icons.local_drink,
+    'Behűtés': Icons.ac_unit,
     'Bejegyzés': Icons.draw
   };
 
