@@ -1,9 +1,13 @@
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 import 'package:sornaplo/utils/logPopUpEdit.dart';
+import 'package:sornaplo/functions/log_functions.dart';
 
 class LogScreen extends StatefulWidget {
   final String beerId;
@@ -28,26 +32,45 @@ class _LogScreenState extends State<LogScreen> {
   };
 
   Future<bool> saveLogs(
-      String type, String description, DateTime selectedDate) async {
+      String type,
+      String description,
+      DateTime selectedDate,
+      File? image,
+      ) async {
+    try {
+      List<Map<String, dynamic>> logs = [];
 
-    List<Map<String, dynamic>> logs = [];
-
-    if (widget.beer['logs'] != null) {
-      for (final element in widget.beer['logs']) {
-        logs.add(element as Map<String, dynamic>);
+      if (widget.beer['logs'] != null) {
+        for (final element in widget.beer['logs']) {
+          logs.add(element as Map<String, dynamic>);
+        }
       }
-    }
 
-    logs.add({
-      type: {'description': description, 'date': selectedDate}
-    });
-    await _firestore
-        .collection('brews')
-        .doc(widget.beerId)
-        .update({'logs': logs});
-    widget.beer['logs'] = logs;
-    setState(() {});
-    return true;
+      // Kép feltöltése Firebase Storage-ba (ha van)
+      String? imageUrl;
+      if (image != null) {
+        final storageRef = FirebaseStorage.instance.ref().child('images').child('log_images').child(DateTime.now().toString());
+        final uploadTask = storageRef.putFile(image);
+        final snapshot = await uploadTask.whenComplete(() {});
+        imageUrl = await snapshot.ref.getDownloadURL();
+      }
+
+      logs.add({
+        type: {'description': description, 'date': selectedDate, 'image': imageUrl}
+      });
+
+      await FirebaseFirestore.instance
+          .collection('brews')
+          .doc(widget.beerId)
+          .update({'logs': logs});
+
+      widget.beer['logs'] = logs;
+      setState(() {});
+      return true;
+    } catch (e) {
+      print('Hiba történt a naplóbejegyzés mentésekor: $e');
+      return false;
+    }
   }
 
   @override
@@ -69,62 +92,84 @@ class _LogScreenState extends State<LogScreen> {
       ),
       body: (widget.beer['logs'] != null
           ? ListView.builder(
-              itemCount: widget.beer['logs'].length,
-              itemBuilder: (context, index) {
-                final logs = widget.beer['logs'][index].entries.first as MapEntry<String, dynamic>;
-                final dynamic date = logs.value['date'];
-                DateTime dateTime = DateTime.now();
-                // log(date.runtimeType.toString());
-                if (date.runtimeType == Timestamp) {
-                  dateTime = date.toDate();
-                } else {
-                  dateTime = date;
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Column(
+          itemCount: widget.beer['logs'].length,
+          itemBuilder: (context, index) {
+            final logs = widget.beer['logs'][index].entries.first as MapEntry<String, dynamic>;
+            final dynamic date = logs.value['date'];
+            DateTime dateTime = DateTime.now();
+            // log(date.runtimeType.toString());
+            if (date.runtimeType == Timestamp) {
+              dateTime = date.toDate();
+            } else {
+              dateTime = date;
+            }
+            // Image
+            final imageUrl = logs.value['image'] as String?;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              child: Column(
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            dateForm.format(dateTime),
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 140, 140, 140),
-                                fontSize: 19),
-                          ),
-                          const Spacer(),
-                          Icon(actionList[logs.key])
-                        ],
-                      ),
-                      const SizedBox(height: 20,),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey,
-                            width: 1
-                          ),
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.grey.shade200,
+                      Text(
+                        dateForm.format(dateTime),
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 140, 140, 140),
+                          fontSize: 19,
                         ),
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(5),
-                        child: Text(logs.value['description']),
-                      )
+                      ),
+                      const Spacer(),
+                      Icon(actionList[logs.key])
                     ],
                   ),
-                );
-              })
-          : const Center(
-              child: Text(
-                "Ez a napló még üres.\n A lenti + gombbal adhatod hozzá az első bejegyzést.\n\n Sok sikert az új főzethez!",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black38,
-                  fontWeight: FontWeight.w400,
-                ),
+                  const SizedBox(height: 20,),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Colors.grey,
+                          width: 1
+                      ),
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.grey.shade200,
+                    ),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(logs.value['description']),
+                        if (imageUrl != null)
+                          AspectRatio(
+                            aspectRatio: 10/ 8, // Állítsd be az arányt az igényeidnek megfelelően
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 10),
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.contain,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  )
+                ],
               ),
-            )),
+            );
+          })
+          : const Center(
+        child: Text(
+          "Ez a napló még üres.\n A lenti + gombbal adhatod hozzá az első bejegyzést.\n\n Sok sikert az új főzethez!",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.black38,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      )),
     );
   }
 
@@ -183,6 +228,9 @@ class _LogScreenState extends State<LogScreen> {
                             builder: (context) {
                               return LogPopUpEdit(
                                 type: actionList.entries.elementAt(index),
+                                // onSave: (type, description, selectedDate, image) {
+                                //   return saveLogs(type, description, selectedDate, image, widget.beerId, widget.beer, setState);
+                                // },
                                 onSave: saveLogs,
                               );
                             });

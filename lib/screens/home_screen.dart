@@ -271,13 +271,52 @@ class _HomeScreenState extends State<HomeScreen> {
               return ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
-                    var brewData = snapshot.data!.docs[index].data()
-                        as Map<String, dynamic>;
+                    var brewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
                     return InkWell(
-                      onTap: () {
-                        var id = snapshot.data!.docs[index].id;
-                        _navigateToLogScreen(
-                            brewData, id); // Pass the beer name to LogScreen
+                        onTap: () {
+                          var id = snapshot.data!.docs[index].id;
+                          _navigateToLogScreen(brewData, id); // Pass the brew data and id to LogScreen
+                        },
+                    child: Dismissible(
+                      key: Key(snapshot.data!.docs[index].id),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        padding: const EdgeInsets.only(left: 16),
+                        alignment: Alignment.centerRight,
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Törlés megerősítése"),
+                              content: const Text(
+                                  "Biztos törölni szeretné ezt a főzetet?"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text("Mégsem"),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: const Text("Törlés"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      onDismissed: (direction) async {
+                        await _firestore
+                            .collection('brews')
+                            .doc(snapshot.data!.docs[index].id)
+                            .delete();
                       },
                       child: Card(
                         elevation: 5,
@@ -288,12 +327,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: ListTile(
                           contentPadding:
-                              const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          const EdgeInsets.fromLTRB(20, 10, 20, 0),
                           title: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                snapshot.data!.docs[index]["name"],
+                                brewData["name"],
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w400,
@@ -313,24 +352,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
-                                      _getMonth(snapshot
-                                          .data!.docs[index]["date"]
-                                          .toDate()
-                                          .month),
+                                      _getMonth(brewData["date"].toDate().month),
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w400,
-                                        color:
-                                            Color.fromARGB(255, 101, 101, 101),
+                                        color: Color.fromARGB(255, 101, 101, 101),
                                       ),
                                     ),
                                     Text(
-                                      "${snapshot.data!.docs[index]["date"].toDate().day}",
+                                      "${brewData["date"].toDate().day}",
                                       style: const TextStyle(
                                         fontSize: 35,
                                         fontWeight: FontWeight.bold,
-                                        color:
-                                            Color.fromARGB(255, 101, 101, 101),
+                                        color: Color.fromARGB(255, 101, 101, 101),
                                       ),
                                     ),
                                   ],
@@ -346,8 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         padding: EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white30,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Image.asset(
                                           'assets/images/smallbeericon.png',
@@ -356,7 +389,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       Text(
-                                        snapshot.data!.docs[index]["type"],
+                                        brewData["type"],
                                         textAlign: TextAlign.end,
                                         style: const TextStyle(
                                           fontSize: 16,
@@ -372,8 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: Colors.white30,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                         child: Image.asset(
                                           'assets/images/pageIcon.png',
@@ -382,9 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       RatingBar.builder(
-                                        initialRating: snapshot
-                                            .data!.docs[index]["rating"]
-                                            .toDouble(),
+                                        initialRating: brewData["rating"].toDouble(),
                                         minRating: 1,
                                         direction: Axis.horizontal,
                                         allowHalfRating: true,
@@ -399,27 +429,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                         onRatingUpdate: (rating) {
                                           _firestore
                                               .collection('brews')
-                                              .doc(
-                                                  snapshot.data!.docs[index].id)
+                                              .doc(snapshot.data!.docs[index].id)
                                               .update({'rating': rating});
                                         },
                                       ),
                                     ],
                                   ),
-                                  // const SizedBox(width: 8),
-                                  // snapshot.data!.docs[index]["rating"] > 2.5
-                                  //     ? const Icon(Icons.thumb_up,
-                                  //         color: Colors.green)
-                                  //     : const Icon(Icons.thumb_down,
-                                  //         color: Colors.red),
                                 ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                    );
-                  });
+                    ),
+                  );
+                },
+              );
             }
             List<Widget> brewCards = [];
 

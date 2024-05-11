@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 class LogPopUpEdit extends StatefulWidget {
   final MapEntry<String, dynamic> type;
-  final Future<bool> Function(String, String, DateTime) onSave;
+  final Future<bool> Function(String, String, DateTime, File?) onSave;
 
   const LogPopUpEdit({Key? key, required this.type, required this.onSave})
       : super(key: key);
@@ -16,6 +20,8 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
   String descriptionText = "";
   bool isError = false;
   DateTime initialDate = DateTime.now();
+  File? _image; // Kép változó
+
   final dateForm = DateFormat('dd-MM-yyyy');
 
   Future<void> _selectDate(BuildContext context) async {
@@ -30,6 +36,42 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
       });
     }
   }
+
+  Future<void> _getImage() async {
+    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+// Future<bool> saveLogs(
+//     String type,
+//     String description,
+//     DateTime selectedDate
+//     ) async {
+//
+//   List<Map<String, dynamic>> logs = [];
+//
+//   if (widget.beer['logs'] != null) {
+//     for (final element in widget.beer['logs']) {
+//       logs.add(element as Map<String, dynamic>);
+//     }
+//   }
+//
+//   logs.add({
+//     type: {'description': description, 'date': selectedDate}
+//   });
+//   await _firestore
+//       .collection('brews')
+//       .doc(widget.beerId)
+//       .update({'logs': logs});
+//   widget.beer['logs'] = logs;
+//   setState(() {});
+//   return true;
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +108,7 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                           }
                           widget
                               .onSave(
-                                  widget.type.key, descriptionText, initialDate)
+                                  widget.type.key, descriptionText, initialDate,_image)
                               .then((value) => {
                                     if (value)
                                       {
@@ -112,7 +154,8 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                       widget.type.key,
                       style: const TextStyle(
                           color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 19),
+                          fontSize: 19
+                      ),
                     )
                   ],
                 ),
@@ -136,10 +179,28 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                       border: OutlineInputBorder(
                           borderSide: BorderSide(
                               color: (!isError) ? Colors.black : Colors.red,
-                              width: 1)),
+                              width: 1,
+                          ),
+                      ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 20), // Add space below the text field
+                GestureDetector(
+                  onTap: _getImage,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    width: 100,
+                    height: 100,
+                    child: _image != null
+                        ? Image.file(_image!, fit: BoxFit.cover)
+                        : Icon(Icons.add, size: 50, color: Colors.grey),
+                  ),
+                ),
+
               ],
             ),
           ),
