@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late Stream<QuerySnapshot> _brewStream;
   final List<Map<String, dynamic>> savedBrewCards = [];
-  List<int> availableYears = [2022, 2023, 2024];
+  // List<int> availableYears = [];
   late int selectedYear = 0;
 
   String _getMonth(int month) {
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _brewStream = const Stream<QuerySnapshot>.empty();
-    selectedYear = availableYears[availableYears.length - 1];
+    // selectedYear = availableYears[availableYears.length - 1];
     _fetchBrews();
   }
 
@@ -120,7 +120,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> showYearSelectionDialog() async {
-    /// nem müködik
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    QuerySnapshot querySnapshot = await firestore.collection('brews').get();
+
+    Set<int> yearsSet = {};
+    querySnapshot.docs.forEach((doc) {
+      DateTime date = (doc.data() as Map)['date'].toDate();
+      yearsSet.add(date.year);
+    });
+
+    List<int> availableYears = yearsSet.toList()..sort();
+
     int? result = await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
@@ -130,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: List.generate(
               availableYears.length,
-              (index) => ListTile(
+                  (index) => ListTile(
                 title: Text(availableYears[index].toString()),
                 onTap: () {
                   Navigator.of(context).pop(availableYears[index]);
@@ -146,9 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
-    if (result != null) {
-      // TODO: Filter cards based on selected year
-    }
   }
 
   @override
@@ -467,15 +475,3 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-//     Center(
-//   child: ElevatedButton(
-//     child: Text("Logout"),
-//     onPressed: () {
-//       FirebaseAuth.instance.signOut().then((value) {
-//         print("Signed Out");
-//         Navigator.push(context,
-//             MaterialPageRoute(builder: (context) => SignInScreen()));
-//       });
-//     },
-//   ),
-// ),

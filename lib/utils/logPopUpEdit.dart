@@ -20,7 +20,7 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
   String descriptionText = "";
   bool isError = false;
   DateTime initialDate = DateTime.now();
-  File? _image; // Kép változó
+  File? _image;
 
   final dateForm = DateFormat('dd-MM-yyyy');
 
@@ -47,31 +47,6 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
     }
   }
 
-// Future<bool> saveLogs(
-//     String type,
-//     String description,
-//     DateTime selectedDate
-//     ) async {
-//
-//   List<Map<String, dynamic>> logs = [];
-//
-//   if (widget.beer['logs'] != null) {
-//     for (final element in widget.beer['logs']) {
-//       logs.add(element as Map<String, dynamic>);
-//     }
-//   }
-//
-//   logs.add({
-//     type: {'description': description, 'date': selectedDate}
-//   });
-//   await _firestore
-//       .collection('brews')
-//       .doc(widget.beerId)
-//       .update({'logs': logs});
-//   widget.beer['logs'] = logs;
-//   setState(() {});
-//   return true;
-// }
 
   @override
   Widget build(BuildContext context) {

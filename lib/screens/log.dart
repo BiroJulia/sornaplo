@@ -46,7 +46,6 @@ class _LogScreenState extends State<LogScreen> {
         }
       }
 
-      // Kép feltöltése Firebase Storage-ba (ha van)
       String? imageUrl;
       if (image != null) {
         final storageRef = FirebaseStorage.instance.ref().child('images').child('log_images').child(DateTime.now().toString());
@@ -66,6 +65,7 @@ class _LogScreenState extends State<LogScreen> {
 
       widget.beer['logs'] = logs;
       setState(() {});
+
       return true;
     } catch (e) {
       print('Hiba történt a naplóbejegyzés mentésekor: $e');
@@ -103,59 +103,102 @@ class _LogScreenState extends State<LogScreen> {
             } else {
               dateTime = date;
             }
-            // Image
             final imageUrl = logs.value['image'] as String?;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        dateForm.format(dateTime),
-                        style: const TextStyle(
-                          color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 19,
+            return Dismissible(
+              key: UniqueKey(),
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20.0),
+                color: Colors.red,
+                child: const Icon(
+                  Icons.delete,
+                  color: Colors.white,
+                ),
+              ),
+              direction: DismissDirection.endToStart,
+              confirmDismiss: (direction) async {
+                final confirm = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Törlés megerősítése"),
+                      content: const Text("Biztosan törölni szeretné ezt a bejegyzést?"),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false);
+                          },
+                          child: const Text("Nem"),
                         ),
-                      ),
-                      const Spacer(),
-                      Icon(actionList[logs.key])
-                    ],
-                  ),
-                  const SizedBox(height: 20,),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Colors.grey,
-                          width: 1
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.grey.shade200,
-                    ),
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: const Text("Igen"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (confirm) {
+                  setState(() {
+                    widget.beer['logs'].removeAt(index);
+                  });
+                }
+                return confirm;
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Column(
+                  children: [
+                    Row(
                       children: [
-                        Text(logs.value['description']),
-                        if (imageUrl != null)
-                          AspectRatio(
-                            aspectRatio: 10/ 8, // Állítsd be az arányt az igényeidnek megfelelően
-                            child: Container(
-                              margin: const EdgeInsets.only(top: 10),
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(imageUrl),
-                                  fit: BoxFit.contain,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
+                        Text(
+                          dateForm.format(dateTime),
+                          style: const TextStyle(
+                            color: Color.fromARGB(255, 140, 140, 140),
+                            fontSize: 19,
                           ),
+                        ),
+                        const Spacer(),
+                        Icon(actionList[logs.key])
                       ],
                     ),
-                  )
-                ],
+                    const SizedBox(height: 20,),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.grey.shade200,
+                      ),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(logs.value['description']),
+                          if (imageUrl != null)
+                            AspectRatio(
+                              aspectRatio: 10 / 8,
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 10),
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(imageUrl),
+                                    fit: BoxFit.contain,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             );
           })
@@ -172,6 +215,7 @@ class _LogScreenState extends State<LogScreen> {
       )),
     );
   }
+
 
   void _showPopup() {
     showModalBottomSheet(
