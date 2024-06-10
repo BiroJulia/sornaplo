@@ -86,7 +86,7 @@ class _LogScreenState extends State<LogScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.black54,
         onPressed: () {
-          _showPopup();
+          _showLogPopup();
         },
         child: const Icon(Icons.add),
       ),
@@ -217,7 +217,7 @@ class _LogScreenState extends State<LogScreen> {
   }
 
 
-  void _showPopup() {
+  void _showLogPopup() {
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),

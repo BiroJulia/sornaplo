@@ -5,9 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:sornaplo/screens/log.dart';
+import 'package:sornaplo/screens/public_recipes_screen.dart';
 import 'package:sornaplo/screens/signin_screen.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 import 'package:sornaplo/utils/popUpEdit.dart';
+
+import '../utils/utils.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> savedBrewCards = [];
   // List<int> availableYears = [];
   late int selectedYear = 0;
+  int _selectedIndex = 0;
 
   String _getMonth(int month) {
     List<String> months = [
@@ -90,34 +94,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showLogoutConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Biztos ki szeretne lépni?"),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Mégsem"),
-            ),
-            TextButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut().then((value) {
-                  print("Signed Out");
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => SignInScreen()));
-                });
-              },
-              child: const Text("Igen, kijelentkezem"),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   Future<void> showYearSelectionDialog() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -159,8 +135,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   }
 
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: _selectedIndex == 0 ? _buildHomeScreen() : PublicRecipesScreen(),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.book),
+            label: 'Recipes',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: hexStringToColor("EC9D00"),
+        onTap: _onItemTapped,
+        backgroundColor: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildHomeScreen() {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -168,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
         leading: IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {
-            _showLogoutConfirmationDialog();
+            showLogoutConfirmationDialog(context);
           },
         ),
         actions: [
@@ -277,14 +282,14 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             } else {
               return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var brewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                    return InkWell(
-                        onTap: () {
-                          var id = snapshot.data!.docs[index].id;
-                          _navigateToLogScreen(brewData, id); // Pass the brew data and id to LogScreen
-                        },
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var brewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  return InkWell(
+                    onTap: () {
+                      var id = snapshot.data!.docs[index].id;
+                      _navigateToLogScreen(brewData, id);
+                    },
                     child: Dismissible(
                       key: Key(snapshot.data!.docs[index].id),
                       direction: DismissDirection.endToStart,
@@ -304,8 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: const Text("Törlés megerősítése"),
-                              content: const Text(
-                                  "Biztos törölni szeretné ezt a főzetet?"),
+                              content: const Text("Biztos törölni szeretné ezt a főzetet?"),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(false),
@@ -328,14 +332,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Card(
                         elevation: 5,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          contentPadding:
-                          const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                           title: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -406,7 +408,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ],
                                   ),
-
                                   Row(
                                     children: [
                                       Container(
@@ -428,8 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         allowHalfRating: true,
                                         itemCount: 5,
                                         itemSize: 24,
-                                        itemPadding: const EdgeInsets.symmetric(
-                                            vertical: 2.0),
+                                        itemPadding: const EdgeInsets.symmetric(vertical: 2.0),
                                         itemBuilder: (context, _) => const Icon(
                                           Icons.star,
                                           color: Colors.amber,
@@ -454,20 +454,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               );
             }
-            List<Widget> brewCards = [];
-
-            // for (var doc in snapshot.data!.docs) {
-            //   var brewData = doc.data() as Map<String, dynamic>;
-            //   brewCards.add(
-
-            //   );
-            // }
-
-            // return savedBrewCards.isEmpty
-            //     ?
-            //     : ListView(
-            //         children: brewCards,
-            //       );
           },
         ),
       ),

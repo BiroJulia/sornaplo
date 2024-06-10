@@ -1,41 +1,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-class LogPopUpEdit extends StatefulWidget {
+class PublicLogPopUpEdit extends StatefulWidget {
   final MapEntry<String, dynamic> type;
-  final Future<bool> Function(String, String, DateTime, File?) onSave;
+  final Future<bool> Function(String, String, File?) onSave;
 
-  const LogPopUpEdit({Key? key, required this.type, required this.onSave})
+  const PublicLogPopUpEdit({Key? key, required this.type, required this.onSave})
       : super(key: key);
 
   @override
-  State<LogPopUpEdit> createState() => _LogPopUpEditState();
+  State<PublicLogPopUpEdit> createState() => _PublicLogPopUpEditState();
 }
 
-class _LogPopUpEditState extends State<LogPopUpEdit> {
+class _PublicLogPopUpEditState extends State<PublicLogPopUpEdit> {
   String descriptionText = "";
   bool isError = false;
-  DateTime initialDate = DateTime.now();
   File? _image;
-
-  final dateForm = DateFormat('dd-MM-yyyy');
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: initialDate,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
-    if (picked != null && picked != initialDate) {
-      setState(() {
-        initialDate = picked;
-      });
-    }
-  }
 
   Future<void> _getImage() async {
     final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
@@ -46,7 +30,6 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -74,23 +57,22 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                         )),
                     const Spacer(),
                     TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (descriptionText.isEmpty) {
                             setState(() {
                               isError = true;
                             });
                             return;
                           }
-                          widget
-                              .onSave(
-                                  widget.type.key, descriptionText, initialDate,_image)
-                              .then((value) => {
-                                    if (value)
-                                      {
-                                        Navigator.of(context).pop(),
-                                        Navigator.of(context).pop()
-                                      }
-                                  });
+                          try {
+                            final success = await widget.onSave(widget.type.key, descriptionText, _image);
+                            if (success) {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            }
+                          } catch (e) {
+                            print('Error saving recipe: $e');
+                          }
                         },
                         child: const Text(
                           'Mentés',
@@ -103,23 +85,6 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                 ),
                 Row(
                   children: [
-                    const Icon(
-                      Icons.calendar_month,
-                      color: Color.fromARGB(255, 140, 140, 140),
-                      size: 30,
-                    ),
-                    TextButton(
-                        onPressed: () => {_selectDate(context)},
-                        child: Text(
-                          dateForm.format(initialDate),
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 140, 140, 140),
-                              fontSize: 19),
-                        ))
-                  ],
-                ),
-                Row(
-                  children: [
                     Icon(
                       widget.type.value,
                       color: const Color.fromARGB(255, 140, 140, 140),
@@ -129,8 +94,7 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                       widget.type.key,
                       style: const TextStyle(
                           color: Color.fromARGB(255, 140, 140, 140),
-                          fontSize: 19
-                      ),
+                          fontSize: 19),
                     )
                   ],
                 ),
@@ -152,10 +116,10 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                     textAlignVertical: TextAlignVertical.top,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: (!isError) ? Colors.black : Colors.red,
-                              width: 1,
-                          ),
+                        borderSide: BorderSide(
+                          color: (!isError) ? Colors.black : Colors.red,
+                          width: 1,
+                        ),
                       ),
                     ),
                   ),
@@ -175,7 +139,6 @@ class _LogPopUpEditState extends State<LogPopUpEdit> {
                         : Icon(Icons.add, size: 50, color: Colors.grey),
                   ),
                 ),
-
               ],
             ),
           ),
