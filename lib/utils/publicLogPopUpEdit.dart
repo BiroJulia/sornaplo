@@ -11,115 +11,137 @@ class PublicLogPopUpEdit extends StatefulWidget {
 }
 
 class _PublicLogPopUpEditState extends State<PublicLogPopUpEdit> {
-  String ingredients = "";
+  List<String> ingredients = [""];
   String mashing = "";
   String hopping = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        title: Text('Edit Brew Data'),
+      ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    "Mégsem",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      height: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).popUntil(ModalRoute.withName('/publicPopUpEdit'));
+                    },
+                    child: const Text(
+                      "Vissza",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        height: 2,
+                      ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () {
-                    widget.initialBrewData["ingredients"] = ingredients;
-                    widget.initialBrewData["mashing"] = mashing;
-                    widget.initialBrewData["hopping"] = hopping;
-                    widget.onSave(widget.initialBrewData);
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text(
-                    "Mentés",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                      height: 2,
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      widget.initialBrewData["ingredients"] = ingredients;
+                      widget.initialBrewData["mashing"] = mashing;
+                      widget.initialBrewData["hopping"] = hopping;
+                      widget.onSave(widget.initialBrewData);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      "Mentés",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        height: 2,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            TextField(
-              maxLines: 3,
-              onChanged: (value) {
-                setState(() {
-                  ingredients = value;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "Alapanyagok",
-                hintStyle: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w400,
-                ),
-                border: UnderlineInputBorder(),
-                contentPadding: EdgeInsets.only(left: 50),
+                ],
               ),
-            ),
-            const SizedBox(height: 30),
-            TextField(
-              maxLines: 3,
-              onChanged: (value) {
-                setState(() {
-                  mashing = value;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "Cefrézés",
-                hintStyle: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w400,
+              const SizedBox(height: 30),
+              ListTile(
+                title: Text('Alapanyagok'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(ingredients.length, (index) {
+                    return Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                ingredients[index] = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: ingredients[index],
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add),
+                          onPressed: () {
+                            setState(() {
+                              ingredients.add('Új alapanyag');
+                            });
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle),
+                          onPressed: () {
+                            setState(() {
+                              ingredients.removeAt(index);
+                            });
+                          },
+                        ),
+                      ],
+                    );
+                  }),
                 ),
-                border: UnderlineInputBorder(),
-                contentPadding: EdgeInsets.only(left: 50),
               ),
-            ),
-            const SizedBox(height: 30),
-            TextField(
-              maxLines: 3,
-              onChanged: (value) {
-                setState(() {
-                  hopping = value;
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: "Komlóadagolás",
-                hintStyle: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w400,
+              const SizedBox(height: 30),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    mashing = value;
+                  });
+                },
+                decoration: const InputDecoration(
+                  hintText: "Cefrézés",
+                  hintStyle: TextStyle(
+                    fontSize: 18,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  border: UnderlineInputBorder(),
                 ),
-                border: UnderlineInputBorder(),
-                contentPadding: EdgeInsets.only(left: 50),
               ),
-            ),
-            const SizedBox(height: 80),
-          ],
+              const SizedBox(height: 30),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    hopping = value;
+                  });
+                },
+                decoration: const InputDecoration(
+                  hintText: "Komlóadagolás",
+                  hintStyle: TextStyle(
+                    fontSize: 18,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  border: UnderlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 80),
+            ],
+          ),
         ),
       ),
     );

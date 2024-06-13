@@ -191,11 +191,6 @@ class _PopUpEditState extends State<PopUpEdit> {
               padding: const EdgeInsets.only(left: 50),
               child: Row(
                 children: [
-                  // const Icon(
-                  //   Icons.local_drink_rounded,
-                  //   color: Color.fromARGB(255, 140, 140, 140),
-                  //   size: 28,
-                  // ),
                   Image.asset(
                     "assets/images/smallbeericon.png",
                     width: 29,
@@ -229,7 +224,8 @@ class _PopUpEditState extends State<PopUpEdit> {
                           fontSize: 19,
                           fontWeight: FontWeight.w400,
                         ),
-                      ))
+                      )
+                  )
                 ],
               ),
             ),

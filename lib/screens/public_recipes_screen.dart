@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sornaplo/screens/public_log.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 
 import '../utils/publicLogPopUpEdit.dart';
 import '../utils/publicPopUpEdit.dart';
+import 'home_screen.dart';
 
 class PublicRecipesScreen extends StatefulWidget {
   const PublicRecipesScreen({Key? key}) : super(key: key);
@@ -40,6 +42,15 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
     });
   }
 
+  void _navigateToPublicLogScreen(Map<String, dynamic> recipeData, String id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PublicLogScreen(recipeData: recipeData, recipeId: id),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +58,16 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
         centerTitle: true,
         backgroundColor: hexStringToColor("EC9D00"),
         title: const Text('Publikus Receptek'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+                  (route) => false,
+            );
+          },
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _publicBrewStream,
@@ -84,54 +105,47 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
             return ListView.builder(
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
-                var brewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                return Card(
-                  elevation: 5,
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          brewData["name"],
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                var publicBrewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                return InkWell(
+                  onTap: () {
+                    var id = snapshot.data!.docs[index].id;
+                    _navigateToPublicLogScreen(publicBrewData, id);
+                  },
+                  child: Card(
+                    elevation: 5,
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    subtitle: brewData["smallDescription"] != null
-                        ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-                        Text(
-                          brewData["type"],
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            publicBrewData["name"] ?? "",
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          brewData["smallDescription"] ?? "",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w300,
+                          const SizedBox(height: 4),
+                          Text(
+                            publicBrewData["type"] ?? "",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
-                      ],
-                    )
-                        : Text(
-                      brewData["type"],
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
+                          const SizedBox(height: 4),
+                          Text(
+                            publicBrewData["smallDescription"] ?? "",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -149,17 +163,17 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
             builder: (context) {
               return PublicPopUpEdit(
                 onNext: (brew) {
-                  Navigator.of(context).pop();
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return PublicLogPopUpEdit(
-                        initialBrewData: brew,
-                        onSave: (finalBrew) {
-                          addPublicBrew(finalBrew);
-                        },
-                      );
-                    },
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return PublicLogPopUpEdit(
+                          initialBrewData: brew,
+                          onSave: (finalBrew) {
+                            addPublicBrew(finalBrew);
+                          },
+                        );
+                      },
+                    ),
                   );
                 },
               );
@@ -168,6 +182,7 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
         },
         child: const Icon(Icons.add),
       ),
+
     );
   }
 }

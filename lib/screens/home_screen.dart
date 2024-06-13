@@ -69,20 +69,22 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchBrews();
   }
 
-  Future<dynamic> _fetchBrews() async {
+  Future<void> _fetchBrews() async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    final DateTime lowerBound = DateTime(selectedYear);
-    final DateTime upperBound = DateTime(selectedYear + 1);
+    if (selectedYear == 0) {
+      _brewStream = _firestore.collection('brews')
+          .where('userId', isEqualTo: userId)
+          .snapshots();
+    } else {
+      final DateTime lowerBound = DateTime(selectedYear);
+      final DateTime upperBound = DateTime(selectedYear + 1);
 
-    _brewStream = _firestore
-        .collection('brews')
-        .where('userId', isEqualTo: userId)
-        .where('date',
-            isLessThan: upperBound, isGreaterThanOrEqualTo: lowerBound)
-        .snapshots();
-
-    return _brewStream;
+      _brewStream = _firestore.collection('brews')
+          .where('userId', isEqualTo: userId)
+          .where('date', isLessThan: upperBound, isGreaterThanOrEqualTo: lowerBound)
+          .snapshots();
+    }
   }
 
   void _navigateToLogScreen(Map<String, dynamic> beerData, String beerId) {
@@ -121,10 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: Text(availableYears[index].toString()),
                 onTap: () {
                   Navigator.of(context).pop(availableYears[index]);
-                  setState(() {
-                    selectedYear = availableYears[index];
-                    _fetchBrews();
-                  });
                 },
               ),
             ),
@@ -133,6 +131,16 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
+    if (result == null) {
+      setState(() {
+        selectedYear = 0;
+      });
+    } else {
+      setState(() {
+        selectedYear = result;
+      });
+    }
+    _fetchBrews();
   }
 
 
@@ -141,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         leading: Icon(Icons.view_list),
                         title: Text('Egyszerű nézet'),
                         onTap: () {
-                          // Implementálni az egyszerű nézet logikáját
+                          // Implementálni az egyszerű nézetet
                           Navigator.pop(context);
                         },
                       ),
