@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/popUpBeers.dart';
-import 'package:sornaplo/utils/publicLogPopUpEdit.dart';
 
 class PublicPopUpEdit extends StatefulWidget {
-  final void Function(Map<String, dynamic>) onNext;
+  // final Map<String, dynamic> publicRecipeData;
+  final void Function(Map<String, dynamic>) onSave;
 
-  const PublicPopUpEdit({Key? key, required this.onNext}) : super(key: key);
+  const PublicPopUpEdit({Key? key, required this.onSave}) : super(key: key);
 
   @override
   State<PublicPopUpEdit> createState() => _PublicPopUpEditState();
@@ -19,16 +19,43 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
   String description = "";
   List<String> beerListFromFirestore = [];
 
+  String ingredients = "";
+  String mashing = "";
+  String hopping = "";
+  String mainFermentation = "";
+  String ripening = "";
+  int OG = 0;
+  int FG = 0;
+  int IBU = 0;
+  int SRM = 0;
+  String descriptionText = "";
+
   @override
   void initState() {
-    fetchBeerTypes();
     super.initState();
+    fetchBeerTypes();
+    // initializeFields();
   }
 
-  Future<void> fetchBeerTypes() async {
-    QuerySnapshot querySnapshot =
-    await FirebaseFirestore.instance.collection('beertype').get();
+  // void initializeFields() {
+  //   name = widget.publicRecipeData["name"] ?? "";
+  //   selectedBeerType = widget.publicRecipeData["type"] ?? "";
+  //   description = widget.publicRecipeData["smallDescription"] ?? "";
+  //
+  //   ingredients = widget.publicRecipeData["ingredients"] ?? "";
+  //   mashing = widget.publicRecipeData["mashing"] ?? "";
+  //   hopping = widget.publicRecipeData["hopping"] ?? "";
+  //   mainFermentation = widget.publicRecipeData["mainFermentation"] ?? "";
+  //   ripening = widget.publicRecipeData["ripening"] ?? "";
+  //   OG = widget.publicRecipeData["OG"] ?? 0;
+  //   FG = widget.publicRecipeData["FG"] ?? 0;
+  //   IBU = widget.publicRecipeData["IBU"] ?? 0;
+  //   SRM = widget.publicRecipeData["SRM"] ?? 0;
+  //   descriptionText = widget.publicRecipeData["descriptionText"] ?? "";
+  // }
 
+  Future<void> fetchBeerTypes() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('beertype').get();
     for (var doc in querySnapshot.docs) {
       beerListFromFirestore.add(doc.id);
     }
@@ -39,6 +66,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
       selectedBeerType = beerType;
     });
   }
+
   double _calculateContainerHeight() {
     final numberOfLines = (description.split('\n').length).toDouble();
     final lineHeight = 25.0;
@@ -47,27 +75,15 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.transparent,
-      body: Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.5,
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10.0),
-              topRight: Radius.circular(10.0),
-            ),
-          ),
-          child: SingleChildScrollView(
+    return Material(
+      child: FractionallySizedBox(
+        heightFactor: 1,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     TextButton(
@@ -91,10 +107,20 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                           Map<String, dynamic> brewData = {
                             "name": name,
                             "type": selectedBeerType,
-                            "smallDescription":
-                            description.isNotEmpty ? description : null,
+                            "smallDescription": description.isNotEmpty ? description : null,
+                            "ingredients": ingredients,
+                            "mashing": mashing,
+                            "hopping": hopping,
+                            "mainFermentation": mainFermentation,
+                            "ripening": ripening,
+                            "OG": OG,
+                            "FG": FG,
+                            "IBU": IBU,
+                            "SRM": SRM,
+                            "descriptionText": descriptionText,
                           };
-                          widget.onNext(brewData);
+                          widget.onSave(brewData);
+                          Navigator.of(context).pop();
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -104,7 +130,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                         }
                       },
                       child: const Text(
-                        "Következő",
+                        "Mentés",
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 18,
@@ -162,9 +188,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                           );
                         },
                         child: Text(
-                          selectedBeerType.isEmpty
-                              ? "válassz egy sörfajtát"
-                              : selectedBeerType,
+                          selectedBeerType.isEmpty ? "válassz egy sörfajtát" : selectedBeerType,
                           style: const TextStyle(
                             color: Colors.black38,
                             fontStyle: FontStyle.italic,
@@ -188,7 +212,6 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                     height: _calculateContainerHeight(),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-
                       children: [
                         const SizedBox(width: 10),
                         Expanded(
@@ -220,6 +243,193 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                 ),
 
                 const SizedBox(height: 30),
+
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      ingredients = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Alapanyagok",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      mashing = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Cefrézés",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      hopping = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Komlóadagolás",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      mainFermentation = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Főerjesztés",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      ripening = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Érlelés",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      OG = int.tryParse(value) ?? 0;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "OG",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      FG = int.tryParse(value) ?? 0;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "FG",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      IBU = int.tryParse(value) ?? 0;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "IBU",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      SRM = int.tryParse(value) ?? 0;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "SRM",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                TextField(
+                  maxLines: 3,
+                  onChanged: (value) {
+                    setState(() {
+                      descriptionText = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Leírás",
+                    hintStyle: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    border: UnderlineInputBorder(),
+                    contentPadding: EdgeInsets.only(left: 50),
+                  ),
+                ),
+                const SizedBox(height: 80),
               ],
             ),
           ),
@@ -228,3 +438,4 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
     );
   }
 }
+
