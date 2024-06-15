@@ -49,6 +49,7 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
       'SRM': brew['SRM'],
       'descriptionText': brew['descriptionText'],
       'creatorId': user?.uid,
+      'image': brew['image'],
     });
   }
 
@@ -182,14 +183,22 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: hexStringToColor("EC9D00"),
         onPressed: () {
-          showDialog(
+          showModalBottomSheet(
             context: context,
+            isScrollControlled: true,
             builder: (context) {
-              return Dialog(
-                child: PublicPopUpEdit(
-                  onSave: (brew) {
-                    addPublicBrew(brew);
-                  },
+              return Container(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: FractionallySizedBox(
+                  heightFactor: 0.9,
+                  widthFactor: 1.0,
+                  child: PublicPopUpEdit(
+                    onSave: (brew) {
+                      addPublicBrew(brew);
+                    },
+                  ),
                 ),
               );
             },
@@ -197,6 +206,7 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
         },
         child: const Icon(Icons.add),
       ),
+
 
     );
   }

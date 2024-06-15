@@ -18,13 +18,13 @@ class PublicLogScreen extends StatefulWidget {
 
 class _PublicLogScreenState extends State<PublicLogScreen> {
   late Map<String, dynamic> recipeData;
-  late String creatorId; // Hozzáadva a létrehozó ID tárolásához
+  late String creatorId;
 
   @override
   void initState() {
     super.initState();
     recipeData = widget.recipeData;
-    creatorId = recipeData['creatorId']; // Létrehozó ID beállítása
+    creatorId = recipeData['creatorId'];
   }
 
 
@@ -172,8 +172,8 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
                   ),
                 ),
               ),
-              if (recipeData['ingredients'] != null && recipeData['ingredients'].isNotEmpty)
-                _buildInfoCard('Összetevők', recipeData['ingredients']),
+              if (recipeData['ingredients'] != null && (recipeData['ingredients'] as List).isNotEmpty)
+                _buildInfoCard('Összetevők', (recipeData['ingredients'] as List).join(', \n')),
               if (recipeData['mashing'] != null && recipeData['mashing'].isNotEmpty)
                 _buildInfoCard('Cefrézés', recipeData['mashing']),
               if (recipeData['hopping'] != null && recipeData['hopping'].isNotEmpty)
