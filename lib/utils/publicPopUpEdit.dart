@@ -8,8 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/popUpBeers.dart';
 
 class PublicPopUpEdit extends StatefulWidget {
-  // final Map<String, dynamic> publicRecipeData;
-  final void Function(Map<String, dynamic>) onSave;
+  final Function(Map<String, dynamic>,File?) onSave;
 
   const PublicPopUpEdit({Key? key, required this.onSave}) : super(key: key);
 
@@ -39,25 +38,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
   void initState() {
     super.initState();
     fetchBeerTypes();
-    // initializeFields();
   }
-
-  // void initializeFields() {
-  //   name = widget.publicRecipeData["name"] ?? "";
-  //   selectedBeerType = widget.publicRecipeData["type"] ?? "";
-  //   description = widget.publicRecipeData["smallDescription"] ?? "";
-  //
-  //   ingredients = widget.publicRecipeData["ingredients"] ?? "";
-  //   mashing = widget.publicRecipeData["mashing"] ?? "";
-  //   hopping = widget.publicRecipeData["hopping"] ?? "";
-  //   mainFermentation = widget.publicRecipeData["mainFermentation"] ?? "";
-  //   ripening = widget.publicRecipeData["ripening"] ?? "";
-  //   OG = widget.publicRecipeData["OG"] ?? 0;
-  //   FG = widget.publicRecipeData["FG"] ?? 0;
-  //   IBU = widget.publicRecipeData["IBU"] ?? 0;
-  //   SRM = widget.publicRecipeData["SRM"] ?? 0;
-  //   descriptionText = widget.publicRecipeData["descriptionText"] ?? "";
-  // }
 
   void _getImage() async {
     final picker = ImagePicker();
@@ -100,8 +81,9 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
   double _calculateContainerHeight(String text) {
     final numberOfLines = (text.split('\n').length).toDouble();
     final lineHeight = 25.0;
-    return numberOfLines * (0.8*lineHeight) + 30.0;
+    return numberOfLines * (0.8 * lineHeight) + 30.0;
   }
+
   Widget _buildAnimatedTextField(String hintText, String value, ValueChanged<String> onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -140,7 +122,6 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -197,15 +178,13 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                           ),
                           const Spacer(),
                           ElevatedButton(
-                            onPressed: () {
-                              if (name.isNotEmpty &&
-                                  selectedBeerType.isNotEmpty) {
+                            onPressed: () async {
+                              if (name.isNotEmpty && selectedBeerType.isNotEmpty) {
+                                String? imageUrl = await _uploadImage();
                                 Map<String, dynamic> brewData = {
                                   "name": name,
                                   "type": selectedBeerType,
-                                  "smallDescription": smallDescription.isNotEmpty
-                                      ? smallDescription
-                                      : null,
+                                  "smallDescription": smallDescription.isNotEmpty ? smallDescription : null,
                                   "ingredients": ingredients,
                                   "mashing": mashing,
                                   "hopping": hopping,
@@ -216,14 +195,22 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   "IBU": IBU,
                                   "SRM": SRM,
                                   "descriptionText": descriptionText,
+                                  "image": imageUrl,
                                 };
-                                widget.onSave(brewData);
-                                Navigator.of(context).pop();
+                                bool success = await widget.onSave(brewData, _image);
+                                if (success) {
+                                  Navigator.of(context).pop();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Hiba történt a mentés során.'),
+                                    ),
+                                  );
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content:
-                                    Text('Töltsd ki az összes kötelező mezőt!'),
+                                    content: Text('Töltsd ki az összes kötelező mezőt!'),
                                   ),
                                 );
                               }
@@ -294,9 +281,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                 );
                               },
                               child: Text(
-                                selectedBeerType.isEmpty
-                                    ? "válassz egy sörfajtát"
-                                    : selectedBeerType,
+                                selectedBeerType.isEmpty ? "válassz egy sörfajtát" : selectedBeerType,
                                 style: const TextStyle(
                                   color: Colors.black38,
                                   fontStyle: FontStyle.italic,
@@ -412,8 +397,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 20),
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                               ),
                             ),
                           ),
@@ -433,13 +417,12 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   fontWeight: FontWeight.w400,
                                 ),
                                 filled: true,
-                                fillColor:Colors.white,
+                                fillColor: Colors.white,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 20),
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                               ),
                             ),
                           ),
@@ -464,8 +447,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 20),
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                               ),
                             ),
                           ),
@@ -490,8 +472,7 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   borderRadius: BorderRadius.circular(8),
                                   borderSide: BorderSide.none,
                                 ),
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 20),
+                                contentPadding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                               ),
                             ),
                           ),
@@ -508,15 +489,15 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                         onTap: _getImage,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.orange[50], // Light orange background
-                            border: Border.all(color: Colors.grey), // Grey border
-                            borderRadius: BorderRadius.circular(8), // Rounded corners
+                            color: Colors.orange[50],
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.5),
                                 spreadRadius: 2,
                                 blurRadius: 5,
-                                offset: const Offset(0, 3), // Shadow position
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -524,10 +505,9 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                           height: 200,
                           child: _image != null
                               ? Image.file(_image!, fit: BoxFit.cover)
-                              : Icon(Icons.add, size: 50, color: Colors.grey), // Placeholder icon
+                              : Icon(Icons.add, size: 50, color: Colors.grey),
                         ),
                       ),
-
                       const SizedBox(height: 80),
                     ],
                   ),
@@ -540,5 +520,3 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
     );
   }
 }
-
-

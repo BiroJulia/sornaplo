@@ -37,34 +37,34 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
     return currentUserId != null && currentUserId == creatorId;
   }
 
-  void _editRecipe() {
-    if (isRecipeCreator()) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PublicPopUpEdit(
-            onSave: (updatedRecipe) {
-              FirebaseFirestore.instance
-                  .collection('publicBrews')
-                  .doc(widget.recipeId)
-                  .update(updatedRecipe);
-              setState(() {
-                recipeData = updatedRecipe;
-              });
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Csak a recept létrehozója szerkesztheti a receptet.'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
+  // void _editRecipe() {
+  //   if (isRecipeCreator()) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => PublicPopUpEdit(
+  //           onSave: (updatedRecipe) {
+  //             FirebaseFirestore.instance
+  //                 .collection('publicBrews')
+  //                 .doc(widget.recipeId)
+  //                 .update(updatedRecipe);
+  //             setState(() {
+  //               recipeData = updatedRecipe;
+  //             });
+  //             Navigator.of(context).pop();
+  //           },
+  //         ),
+  //       ),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Csak a recept létrehozója szerkesztheti a receptet.'),
+  //         duration: Duration(seconds: 2),
+  //       ),
+  //     );
+  //   }
+  // }
 
   void _deleteRecipe() {
     if (isRecipeCreator()) {
@@ -103,11 +103,11 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
           if (isRecipeCreator())
             PopupMenuButton<String>(
               onSelected: (value) {
-                if (value == 'edit') {
-                  _editRecipe();
-                } else if (value == 'delete') {
-                  _deleteRecipe();
-                }
+                // if (value == 'edit') {
+                //   _editRecipe();
+                // } else if (value == 'delete') {
+                //   _deleteRecipe();
+                // }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 const PopupMenuItem<String>(

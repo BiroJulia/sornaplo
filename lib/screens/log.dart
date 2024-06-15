@@ -272,9 +272,6 @@ class _LogScreenState extends State<LogScreen> {
                             builder: (context) {
                               return LogPopUpEdit(
                                 type: actionList.entries.elementAt(index),
-                                // onSave: (type, description, selectedDate, image) {
-                                //   return saveLogs(type, description, selectedDate, image, widget.beerId, widget.beer, setState);
-                                // },
                                 onSave: saveLogs,
                               );
                             });

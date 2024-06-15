@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:sornaplo/screens/public_log.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
 
-import '../utils/publicLogPopUpEdit.dart';
 import '../utils/publicPopUpEdit.dart';
 import 'home_screen.dart';
 
@@ -32,27 +34,41 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
     });
   }
 
-  void addPublicBrew(Map<String, dynamic> brew) {
-    final user = FirebaseAuth.instance.currentUser;
-    _firestore.collection('publicBrews').add({
-      'name': brew['name'],
-      'type': brew['type'],
-      'smallDescription': brew['smallDescription'],
-      'ingredients': brew['ingredients'],
-      'mashing': brew['mashing'],
-      'hopping': brew['hopping'],
-      'mainFermentation': brew['mainFermentation'],
-      'ripening': brew['ripening'],
-      'OG': brew['OG'],
-      'FG': brew['FG'],
-      'IBU': brew['IBU'],
-      'SRM': brew['SRM'],
-      'descriptionText': brew['descriptionText'],
-      'creatorId': user?.uid,
-      'image': brew['image'],
-    });
-  }
+  Future<bool> addPublicBrew(Map<String, dynamic> brew, File? image) async {
+    try {
+      String? imageUrl;
+      if (image != null) {
+        final storageRef = FirebaseStorage.instance.ref().child('images').child('log_images').child(DateTime.now().toString());
+        final uploadTask = storageRef.putFile(image);
+        final snapshot = await uploadTask.whenComplete(() {});
+        imageUrl = await snapshot.ref.getDownloadURL();
+      }
 
+      final user = FirebaseAuth.instance.currentUser;
+      await _firestore.collection('publicBrews').add({
+        'name': brew['name'],
+        'type': brew['type'],
+        'smallDescription': brew['smallDescription'],
+        'ingredients': brew['ingredients'],
+        'mashing': brew['mashing'],
+        'hopping': brew['hopping'],
+        'mainFermentation': brew['mainFermentation'],
+        'ripening': brew['ripening'],
+        'OG': brew['OG'],
+        'FG': brew['FG'],
+        'IBU': brew['IBU'],
+        'SRM': brew['SRM'],
+        'descriptionText': brew['descriptionText'],
+        'creatorId': user?.uid,
+        'image': imageUrl,
+      });
+
+      return true;
+    } catch (e) {
+      print('Hiba történt a publikus recept mentésekor: $e');
+      return false;
+    }
+  }
   void _navigateToPublicLogScreen(Map<String, dynamic> recipeData, String id) {
     Navigator.push(
       context,
@@ -195,10 +211,20 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
                   heightFactor: 0.9,
                   widthFactor: 1.0,
                   child: PublicPopUpEdit(
-                    onSave: (brew) {
-                      addPublicBrew(brew);
+                    onSave: (brew, image) async {
+                      bool success = await addPublicBrew(brew, image);
+                      if (success) {
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Hiba történt a mentés során.'),
+                          ),
+                        );
+                      }
                     },
                   ),
+
                 ),
               );
             },
