@@ -96,7 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Future<void> showYearSelectionDialog() async {
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -143,14 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchBrews();
   }
 
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,15 +170,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  @override
   Widget _buildHomeScreen() {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: hexStringToColor("EC9D00"),
-        leading: IconButton(
-          icon: Icon(Icons.logout),
-          onPressed: () {
-            showLogoutConfirmationDialog(context);
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
           },
         ),
         actions: [
@@ -275,7 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 100, vertical: 10),
+                        horizontal: 100,
+                        vertical: 10,
+                      ),
                       child: const Text(
                         "Üdvözlet a Sörnaplóban! \n\n Hogy ez az oldal ne legyen ilyen üres, főzz egy új sört és vezess itt naplót.",
                         textAlign: TextAlign.center,
@@ -293,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {
-                  var brewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  var brewData =
+                  snapshot.data!.docs[index].data() as Map<String, dynamic>;
                   return InkWell(
                     onTap: () {
                       var id = snapshot.data!.docs[index].id;
@@ -318,7 +322,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: const Text("Törlés megerősítése"),
-                              content: const Text("Biztos törölni szeretné ezt a főzetet?"),
+                              content:
+                              const Text("Biztos törölni szeretné ezt a főzetet?"),
                               actions: <Widget>[
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(false),
@@ -341,12 +346,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Card(
                         elevation: 5,
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          contentPadding: const                           EdgeInsets.fromLTRB(20, 10, 20, 0),
                           title: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -466,6 +472,78 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PublicRecipesScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: hexStringToColor("EC9D00"),
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            DrawerHeader(
+              padding: EdgeInsets.fromLTRB(50, 10 , 140, 50),
+              decoration: BoxDecoration(
+                color: hexStringToColor("EC9D00"),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'Sörnapló',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    FirebaseAuth.instance.currentUser!.email!,
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(
+                    title: Text('Elem 1'),
+                    onTap: () {
+                      // Implementáld az Elem 1 funkcionalitását
+                    },
+                  ),
+                  ListTile(
+                    title: Text('Elem 2'),
+                    onTap: () {
+                      // Implementáld az Elem 2 funkcionalitását
+                    },
+                  ),
+                  // További elemek hozzáadása szükség szerint
+                ],
+              ),
+            ),
+            Divider(),
+            ListTile(
+              title: Text('Kijelentkezés'),
+              leading: Icon(Icons.logout),
+              onTap: () {
+                showLogoutConfirmationDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+
     );
   }
 }
