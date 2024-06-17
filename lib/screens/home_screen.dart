@@ -11,6 +11,7 @@ import 'package:sornaplo/utils/colors_utils.dart';
 import 'package:sornaplo/utils/popUpEdit.dart';
 
 import '../utils/utils.dart';
+import 'brewing_process.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -517,18 +518,25 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 children: [
                   ListTile(
-                    title: Text('Elem 1'),
+                    leading: Icon(Icons.scatter_plot_outlined),
+                    title: Text('Sörfőzés folyamata'),
                     onTap: () {
-                      // Implementáld az Elem 1 funkcionalitását
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BrewingProcessScreen(),
+                        ),
+                      );
                     },
                   ),
                   ListTile(
-                    title: Text('Elem 2'),
+                    leading: Icon(Icons.person_pin_rounded),
+                    title: Text('Profil'),
                     onTap: () {
-                      // Implementáld az Elem 2 funkcionalitását
+                      // profil
                     },
                   ),
-                  // További elemek hozzáadása szükség szerint
+
                 ],
               ),
             ),
