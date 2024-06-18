@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:sornaplo/screens/event_screen.dart';
 import 'package:sornaplo/screens/log.dart';
 import 'package:sornaplo/screens/public_recipes_screen.dart';
 import 'package:sornaplo/screens/signin_screen.dart';
@@ -518,6 +519,33 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView(
                 children: [
                   ListTile(
+                    leading: Icon(Icons.home),
+                    title: Text('Home'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.book),
+                    title: Text('Recipes'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PublicRecipesScreen()),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person_pin_rounded),
+                    title: Text('Profil'),
+                    onTap: () {
+                      // profil
+                    },
+                  ),
+                  ListTile(
                     leading: Icon(Icons.scatter_plot_outlined),
                     title: Text('Sörfőzés folyamata'),
                     onTap: () {
@@ -530,10 +558,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.person_pin_rounded),
-                    title: Text('Profil'),
+                    leading: Icon(Icons.calendar_today_outlined),
+                    title: Text('Esemény naptár'),
                     onTap: () {
-                      // profil
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventScreen(),
+                        ),
+                      );
                     },
                   ),
 

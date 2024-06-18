@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sornaplo/screens/public_recipes_screen.dart';
 import 'package:sornaplo/screens/signin_screen.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
+import 'event_screen.dart';
 import 'home_screen.dart';
 
 class BrewingProcessScreen extends StatelessWidget {
@@ -401,6 +402,37 @@ class BrewingProcessScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => PublicRecipesScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person_pin_rounded),
+              title: Text('Profil'),
+              onTap: () {
+                // profil
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.scatter_plot_outlined),
+              title: Text('Sörfőzés folyamata'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BrewingProcessScreen(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_today_outlined),
+              title: Text('Esemény naptár'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EventScreen(),
+                  ),
                 );
               },
             ),
