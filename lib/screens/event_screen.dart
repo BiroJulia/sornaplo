@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:sornaplo/utils/colors_utils.dart';
+import '../utils/colors_utils.dart';
+import '../utils/eventPopUpEdit.dart';
 import '../utils/utils.dart';
 import 'brewing_process.dart';
 import 'event_details_screen.dart';
@@ -18,10 +19,6 @@ class _EventScreenState extends State<EventScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
   CalendarFormat format = CalendarFormat.month;
-  final _eventNameController = TextEditingController();
-  final _eventTimeController = TextEditingController();
-  final _eventLocationController = TextEditingController();
-  final _eventDescriptionController = TextEditingController();
   Map<DateTime, List> _events = {};
 
   @override
@@ -46,78 +43,6 @@ class _EventScreenState extends State<EventScreen> {
     });
   }
 
-  void _addEvent() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Új Esemény Létrehozása'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: _eventNameController,
-                  decoration: InputDecoration(labelText: 'Esemény Neve'),
-                ),
-                TextField(
-                  controller: _eventTimeController,
-                  decoration: InputDecoration(labelText: 'Időpont'),
-                ),
-                TextField(
-                  controller: _eventLocationController,
-                  decoration: InputDecoration(labelText: 'Helyszín'),
-                ),
-                TextField(
-                  controller: _eventDescriptionController,
-                  decoration: InputDecoration(labelText: 'Leírás'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Mégse'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await FirebaseFirestore.instance.collection('events').add({
-                  'name': _eventNameController.text,
-                  'date': _selectedDay,
-                  'time': _eventTimeController.text,
-                  'location': _eventLocationController.text,
-                  'description': _eventDescriptionController.text,
-                });
-
-                DateTime eventDateKey = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
-                if (_events[eventDateKey] == null) {
-                  _events[eventDateKey] = [];
-                }
-                _events[eventDateKey]!.add({
-                  'name': _eventNameController.text,
-                  'date': _selectedDay,
-                  'time': _eventTimeController.text,
-                  'location': _eventLocationController.text,
-                  'description': _eventDescriptionController.text,
-                });
-
-                _eventNameController.clear();
-                _eventTimeController.clear();
-                _eventLocationController.clear();
-                _eventDescriptionController.clear();
-                Navigator.of(context).pop();
-                setState(() {});
-              },
-              child: Text('Mentés'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,7 +62,14 @@ class _EventScreenState extends State<EventScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: _addEvent,
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return EventPopUpEdit();
+                },
+              );
+            },
           ),
         ],
         title: Text('Események'),
@@ -358,3 +290,4 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 }
+

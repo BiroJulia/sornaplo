@@ -42,10 +42,8 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
 
   Future<bool> updateRecipe(Map<String, dynamic> updatedRecipe, File? image) async {
     try {
-      // Firebase Firestore referenciája a 'publicBrews' gyűjteményre
       final recipeDocRef = FirebaseFirestore.instance.collection('publicBrews').doc(updatedRecipe['id']);
 
-      // Ha van új kép, feltöltjük és a letöltési URL-t hozzáadjuk az adatokhoz
       if (image != null) {
         final storageRef = FirebaseStorage.instance.ref().child('recipe_images/${recipeDocRef.id}');
         final uploadTask = storageRef.putFile(image);
@@ -54,12 +52,11 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
         updatedRecipe['image'] = downloadURL;
       }
 
-      // Recept frissítése a Firestore-ban
       await recipeDocRef.update(updatedRecipe);
-      return true; // Sikeres frissítés esetén true értékkel térünk vissza
+      return true;
     } catch (e) {
       print('Hiba történt a recept frissítése közben: $e');
-      return false; // Hibás esetben false értékkel térünk vissza
+      return false;
     }
   }
   void _editRecipe() {
@@ -68,14 +65,14 @@ class _PublicLogScreenState extends State<PublicLogScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => PublicPopUpEdit(
-            initialRecipeData: recipeData,  // Átadjuk a jelenlegi recept adatait
+            initialRecipeData: recipeData,
             onSave: (updatedRecipe, image) async {
               bool success = await updateRecipe(updatedRecipe, image);
               if (success) {
                 setState(() {
-                  recipeData = updatedRecipe;  // Frissítjük a helyi állapotot az új adatokkal
+                  recipeData = updatedRecipe;
                 });
-                Navigator.of(context).pop();  // Bezárjuk a szerkesztő popup-ot
+                Navigator.of(context).pop();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
