@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sornaplo/screens/public_recipes_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:sornaplo/utils/colors_utils.dart';
-
 import '../utils/utils.dart';
 import 'brewing_process.dart';
 import 'event_details_screen.dart';
 import 'home_screen.dart';
+import 'public_recipes_screen.dart';
 
 class EventScreen extends StatefulWidget {
   @override
@@ -18,6 +17,7 @@ class EventScreen extends StatefulWidget {
 class _EventScreenState extends State<EventScreen> {
   DateTime _selectedDay = DateTime.now();
   DateTime _focusedDay = DateTime.now();
+  CalendarFormat format = CalendarFormat.month;
   final _eventNameController = TextEditingController();
   final _eventTimeController = TextEditingController();
   final _eventLocationController = TextEditingController();
@@ -82,19 +82,33 @@ class _EventScreenState extends State<EventScreen> {
               child: Text('Mégse'),
             ),
             TextButton(
-              onPressed: () {
-                FirebaseFirestore.instance.collection('events').add({
+              onPressed: () async {
+                await FirebaseFirestore.instance.collection('events').add({
                   'name': _eventNameController.text,
                   'date': _selectedDay,
                   'time': _eventTimeController.text,
                   'location': _eventLocationController.text,
                   'description': _eventDescriptionController.text,
                 });
+
+                DateTime eventDateKey = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+                if (_events[eventDateKey] == null) {
+                  _events[eventDateKey] = [];
+                }
+                _events[eventDateKey]!.add({
+                  'name': _eventNameController.text,
+                  'date': _selectedDay,
+                  'time': _eventTimeController.text,
+                  'location': _eventLocationController.text,
+                  'description': _eventDescriptionController.text,
+                });
+
                 _eventNameController.clear();
                 _eventTimeController.clear();
                 _eventLocationController.clear();
                 _eventDescriptionController.clear();
                 Navigator.of(context).pop();
+                setState(() {});
               },
               child: Text('Mentés'),
             ),
@@ -231,21 +245,46 @@ class _EventScreenState extends State<EventScreen> {
             firstDay: DateTime.utc(2000, 1, 1),
             lastDay: DateTime.utc(2100, 12, 31),
             focusedDay: _focusedDay,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: (selectedDay, focusedDay) {
+            calendarFormat: format,
+            onFormatChanged: (CalendarFormat _format) {
               setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
+                format = _format;
               });
             },
-            onPageChanged: (focusedDay) {
-              _focusedDay = focusedDay;
+            onDaySelected: (DateTime selectDay, DateTime focusDay) {
+              setState(() {
+                _selectedDay = selectDay;
+                _focusedDay = focusDay;
+              });
+              print(_focusedDay);
+            },
+            selectedDayPredicate: (DateTime date) {
+              return isSameDay(_selectedDay, date);
+            },
+            eventLoader: (day) {
+              return _events[day] ?? [];
             },
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
+            ),
+            calendarStyle: CalendarStyle(
+              isTodayHighlighted: true,
+              selectedDecoration: BoxDecoration(
+                color: Colors.orange[700],
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle: TextStyle(color: Colors.white),
+              todayDecoration: BoxDecoration(
+                color: Colors.orangeAccent[200],
+                shape: BoxShape.circle,
+              ),
+              defaultDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              weekendDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+              ),
             ),
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
@@ -259,9 +298,6 @@ class _EventScreenState extends State<EventScreen> {
                 return Container();
               },
             ),
-            eventLoader: (day) {
-              return _events[day] ?? [];
-            },
           ),
           Expanded(
             child: StreamBuilder(

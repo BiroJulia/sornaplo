@@ -180,7 +180,6 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                           ElevatedButton(
                             onPressed: () async {
                               if (name.isNotEmpty && selectedBeerType.isNotEmpty) {
-                                String? imageUrl = await _uploadImage();
                                 Map<String, dynamic> brewData = {
                                   "name": name,
                                   "type": selectedBeerType,
@@ -195,7 +194,6 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
                                   "IBU": IBU,
                                   "SRM": SRM,
                                   "descriptionText": descriptionText,
-                                  "image": imageUrl,
                                 };
                                 bool success = await widget.onSave(brewData, _image);
                                 if (success) {
