@@ -8,9 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:sornaplo/utils/popUpBeers.dart';
 
 class PublicPopUpEdit extends StatefulWidget {
-  final Function(Map<String, dynamic>,File?) onSave;
+  final dynamic Function(Map<String, dynamic>,File?) onSave;
+  final Map<String, dynamic>? initialRecipeData;
 
-  const PublicPopUpEdit({Key? key, required this.onSave}) : super(key: key);
+  const PublicPopUpEdit({Key? key, required this.onSave, this.initialRecipeData}) : super(key: key);
 
   @override
   State<PublicPopUpEdit> createState() => _PublicPopUpEditState();
@@ -38,6 +39,20 @@ class _PublicPopUpEditState extends State<PublicPopUpEdit> {
   void initState() {
     super.initState();
     fetchBeerTypes();
+    if (widget.initialRecipeData != null) {
+      name = widget.initialRecipeData!['name'];
+      smallDescription = widget.initialRecipeData!['smallDescription'];
+      mashing = widget.initialRecipeData!['mashing'];
+      hopping = widget.initialRecipeData!['hopping'];
+      mainFermentation = widget.initialRecipeData!['mainFermentation'];
+      ripening = widget.initialRecipeData!['ripening'];
+      OG = widget.initialRecipeData!['OG'];
+      FG = widget.initialRecipeData!['FG'];
+      IBU = widget.initialRecipeData!['IBU'];
+      SRM = widget.initialRecipeData!['SRM'];
+      descriptionText = widget.initialRecipeData!['descriptionText'];
+      _image = widget.initialRecipeData!['image'];
+    }
   }
 
   void _getImage() async {
