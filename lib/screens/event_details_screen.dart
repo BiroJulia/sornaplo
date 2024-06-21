@@ -1,22 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../utils/colors_utils.dart';
 
 class EventDetailsScreen extends StatelessWidget {
   final String eventId;
+  final String userId;
 
-  EventDetailsScreen({required this.eventId});
+  EventDetailsScreen({required this.eventId, required this.userId});
 
   final _commentController = TextEditingController();
 
+  bool isEventCreator(String creatorId) {
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    return currentUserId != null && currentUserId == creatorId;
+  }
+
+  void _editEvent() {
+    // Szerkesztés
+  }
+
+  void _deleteEvent(BuildContext context) {
+    FirebaseFirestore.instance.collection('events').doc(eventId).delete();
+    Navigator.of(context).pop();
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Esemény Részletek'),
         backgroundColor: hexStringToColor("EC9D00"),
         elevation: 2,
+        actions: [
+          if (isEventCreator(userId))
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _editEvent();
+                } else if (value == 'delete') {
+                  _deleteEvent(context);
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: ListTile(
+                    leading: Icon(Icons.edit),
+                    title: Text('Szerkesztés'),
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: ListTile(
+                    leading: Icon(Icons.delete),
+                    title: Text('Törlés'),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -163,7 +209,7 @@ class EventDetailsScreen extends StatelessWidget {
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 10.0,
-                          offset: Offset(0.0, 10.0),
+                          offset: Offset(0, 10),
                         ),
                       ],
                     ),
@@ -179,11 +225,16 @@ class EventDetailsScreen extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
-                    FirebaseFirestore.instance.collection('events').doc(eventId).collection('comments').add({
-                      'text': _commentController.text,
-                      'user': 'Anonim',
-                    });
-                    _commentController.clear();
+                    var currentUser = FirebaseAuth.instance.currentUser;
+                    if (currentUser != null) {
+                      String username = currentUser.email?.split('@')[0] ?? 'Unknown User';
+                      FirebaseFirestore.instance.collection('events').doc(eventId).collection('comments').add({
+                        'text': _commentController.text,
+                        'user': username,
+                        'userId': currentUser.uid,
+                      });
+                      _commentController.clear();
+                    }
                   },
                   color: Colors.amber.shade200,
                 ),

@@ -4,19 +4,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class EventPopUpEdit extends StatefulWidget {
+  final DateTime selectedDay;
+
+  EventPopUpEdit({required this.selectedDay});
   @override
   _EventPopUpEditState createState() => _EventPopUpEditState();
 }
 
 class _EventPopUpEditState extends State<EventPopUpEdit> {
-  DateTime _selectedDay = DateTime.now();
+  late DateTime _selectedDay;
   final _eventNameController = TextEditingController();
   final _eventTimeController = TextEditingController();
   final _eventLocationController = TextEditingController();
   final _eventDescriptionController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = widget.selectedDay;
+  }
+
   double _calculateContainerHeight(String text) {
-    final numberOfLines = (text.split('\n').length).toDouble();
+    final numberOfLines = (text
+        .split('\n')
+        .length).toDouble();
     final lineHeight = 25.0;
     return numberOfLines * (0.8 * lineHeight) + 30.0;
   }
@@ -65,25 +76,29 @@ class _EventPopUpEditState extends State<EventPopUpEdit> {
                 ),
               ),
               SizedBox(height: 16.0),
-              _buildAnimatedTextField("Esemény neve", _eventNameController.text, (value) {
+              _buildAnimatedTextField(
+                  "Esemény neve", _eventNameController.text, (value) {
                 setState(() {
                   _eventNameController.text = value;
                 });
               }),
               SizedBox(height: 12.0),
-              _buildAnimatedTextField("Időpont", _eventTimeController.text, (value) {
+              _buildAnimatedTextField(
+                  "Időpont", _eventTimeController.text, (value) {
                 setState(() {
                   _eventTimeController.text = value;
                 });
               }),
               SizedBox(height: 12.0),
-              _buildAnimatedTextField("Helyszín", _eventLocationController.text, (value) {
+              _buildAnimatedTextField(
+                  "Helyszín", _eventLocationController.text, (value) {
                 setState(() {
                   _eventLocationController.text = value;
                 });
               }),
               SizedBox(height: 12.0),
-              _buildAnimatedTextField("Leírás", _eventDescriptionController.text, (value) {
+              _buildAnimatedTextField(
+                  "Leírás", _eventDescriptionController.text, (value) {
                 setState(() {
                   _eventDescriptionController.text = value;
                 });
@@ -116,14 +131,15 @@ class _EventPopUpEditState extends State<EventPopUpEdit> {
                   ElevatedButton(
                     onPressed: () async {
                       var userId = FirebaseAuth.instance.currentUser?.uid;
-                      await FirebaseFirestore.instance.collection('events').add({
-                        'name': _eventNameController.text,
-                        'date': _selectedDay,
-                        'time': _eventTimeController.text,
-                        'location': _eventLocationController.text,
-                        'description': _eventDescriptionController.text,
-                        'userId': userId,
-                      });
+                      await FirebaseFirestore.instance.collection('events').add(
+                          {
+                            'name': _eventNameController.text,
+                            'date': _selectedDay,
+                            'time': _eventTimeController.text,
+                            'location': _eventLocationController.text,
+                            'description': _eventDescriptionController.text,
+                            'userId': userId,
+                          });
 
                       _eventNameController.clear();
                       _eventTimeController.clear();
@@ -157,7 +173,8 @@ class _EventPopUpEditState extends State<EventPopUpEdit> {
     );
   }
 
-  Widget _buildAnimatedTextField(String hintText, String value, ValueChanged<String> onChanged) {
+  Widget _buildAnimatedTextField(String hintText, String value,
+      ValueChanged<String> onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       decoration: BoxDecoration(
@@ -185,7 +202,10 @@ class _EventPopUpEditState extends State<EventPopUpEdit> {
               color: Colors.grey[400],
             ),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            contentPadding: EdgeInsets.symmetric(
+                vertical: 15.0,
+                horizontal: 20.0,
+            ),
           ),
         ),
       ),

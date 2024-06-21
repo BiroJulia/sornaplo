@@ -66,7 +66,7 @@ class _EventScreenState extends State<EventScreen> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return EventPopUpEdit();
+                  return EventPopUpEdit(selectedDay: _selectedDay);
                 },
               );
             },
@@ -152,8 +152,7 @@ class _EventScreenState extends State<EventScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EventScreen(),
-                        ),
+                            builder: (context) => EventScreen()),
                       );
                     },
                   ),
@@ -219,15 +218,28 @@ class _EventScreenState extends State<EventScreen> {
               ),
             ),
             calendarBuilders: CalendarBuilders(
-              markerBuilder: (context, day, events) {
-                if (events.isNotEmpty) {
-                  return Positioned(
-                    right: 1,
-                    bottom: 1,
-                    child: _buildEventsMarker(day, events),
-                  );
-                }
-                return Container();
+              defaultBuilder: (context, date, _) {
+                bool hasEvents = _events[date] != null && _events[date]!.isNotEmpty;
+                return Container(
+                  margin: const EdgeInsets.all(6.0),
+                  decoration: BoxDecoration(
+                    border: hasEvents ? Border.all(color: Colors.green, width: 2) : null,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${date.day}',
+                      style: TextStyle(color: hasEvents ? Colors.green : Colors.black),
+                    ),
+                  ),
+                );
+              },
+              markerBuilder: (context, date, events) {
+                if (events.isEmpty) return SizedBox();
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: _buildEventsMarker(date, events),
+                );
               },
             ),
           ),
@@ -235,7 +247,7 @@ class _EventScreenState extends State<EventScreen> {
             child: StreamBuilder(
               stream: FirebaseFirestore.instance
                   .collection('events')
-                  .where('date', isEqualTo: _selectedDay)
+                  .where('date', isEqualTo: Timestamp.fromDate(_selectedDay))
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -258,6 +270,7 @@ class _EventScreenState extends State<EventScreen> {
                           MaterialPageRoute(
                             builder: (context) => EventDetailsScreen(
                               eventId: event.id,
+                              userId: event['userId'],
                             ),
                           ),
                         );
@@ -277,17 +290,19 @@ class _EventScreenState extends State<EventScreen> {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.blue,
+        color: Colors.green,
       ),
       width: 16.0,
       height: 16.0,
       child: Center(
         child: Text(
           '${events.length}',
-          style: TextStyle(color: Colors.white, fontSize: 12.0),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12.0,
+          ),
         ),
       ),
     );
   }
 }
-
