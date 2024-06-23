@@ -538,13 +538,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  ListTile(
-                    leading: Icon(Icons.person_pin_rounded),
-                    title: Text('Profil'),
-                    onTap: () {
-                      // profil
-                    },
-                  ),
+                  // ListTile(
+                  //   leading: Icon(Icons.person_pin_rounded),
+                  //   title: Text('Profil'),
+                  //   onTap: () {
+                  //     // profil
+                  //   },
+                  // ),
                   ListTile(
                     leading: Icon(Icons.scatter_plot_outlined),
                     title: Text('Sörfőzés folyamata'),

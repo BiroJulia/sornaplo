@@ -32,8 +32,8 @@ class _EventScreenState extends State<EventScreen> {
       setState(() {
         _events = {};
         for (var doc in snapshot.docs) {
-          DateTime eventDate = (doc['date'] as Timestamp).toDate();
-          DateTime eventDateKey = DateTime(eventDate.year, eventDate.month, eventDate.day);
+          DateTime eventDate = (doc['date'] as Timestamp).toDate().toUtc();
+          DateTime eventDateKey = DateTime.utc(eventDate.year, eventDate.month, eventDate.day);
           if (_events[eventDateKey] == null) {
             _events[eventDateKey] = [];
           }
@@ -126,13 +126,13 @@ class _EventScreenState extends State<EventScreen> {
                       );
                     },
                   ),
-                  ListTile(
-                    leading: Icon(Icons.person_pin_rounded),
-                    title: Text('Profil'),
-                    onTap: () {
-                      // profil
-                    },
-                  ),
+                  // ListTile(
+                  //   leading: Icon(Icons.person_pin_rounded),
+                  //   title: Text('Profil'),
+                  //   onTap: () {
+                  //     // profil
+                  //   },
+                  // ),
                   ListTile(
                     leading: Icon(Icons.scatter_plot_outlined),
                     title: Text('Sörfőzés folyamata'),

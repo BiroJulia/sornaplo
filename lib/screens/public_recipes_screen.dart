@@ -142,6 +142,7 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
               itemBuilder: (context, index) {
                 var publicBrewData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
                 String shortDescription = shortenDescription(publicBrewData["smallDescription"] ?? "", 100);
+                String? imageUrl = publicBrewData['image'];
                 return InkWell(
                   onTap: () {
                     var id = snapshot.data!.docs[index].id;
@@ -155,38 +156,57 @@ class _PublicRecipesScreenState extends State<PublicRecipesScreen> {
                     ),
                     child: SizedBox(
                       height: 160,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              publicBrewData["name"] ?? "",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w400,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    publicBrewData["name"] ?? "",
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    publicBrewData["type"] ?? "",
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    shortDescription,
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              publicBrewData["type"] ?? "",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.black54,
+                          ),
+                          if (imageUrl != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(12),
+                                bottomRight: Radius.circular(12),
+                              ),
+                              child: Image.network(
+                                imageUrl,
+                                width: 150,
+                                height: 160,
+                                fit: BoxFit.cover,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              shortDescription,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
